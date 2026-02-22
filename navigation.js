@@ -47,7 +47,7 @@ function createHintBar() {
     style.textContent = `
         .hint-bar {
             position: fixed;
-            bottom: 20px;
+            bottom: 120px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 1000;
