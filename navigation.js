@@ -27,14 +27,16 @@ function createHintBar() {
     const hintBar = document.createElement('div');
     hintBar.className = 'hint-bar';
     
-    let labelsHTML = `
-        <span class="hint-label" data-view="map">map</span>
-        <span class="hint-label" data-view="text">text</span>
-    `;
-    
+    let labelsHTML = ``;
+
     if (navConfig.showAllTrips) {
         labelsHTML += `<span class="hint-label" data-view="all">all trips</span>`;
     }
+
+    labelsHTML += `
+        <span class="hint-label" data-view="map">map</span>
+        <span class="hint-label" data-view="text">text</span>
+    `;
     
     hintBar.innerHTML = `
         <div class="hint-bar-track">
