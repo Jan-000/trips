@@ -167,12 +167,12 @@ function handleSwipe() {
     const swipeDistance = touchEndX - touchStartX;
     
     // Swipe right (positive distance)
-    if (swipeDistance > swipeThreshold && navConfig.leftTarget) {
-        window.location.href = navConfig.leftTarget;
+    if (swipeDistance > swipeThreshold && navConfig.rightTarget) {
+        window.location.href = navConfig.rightTarget;
     }
     // Swipe left (negative distance)
-    else if (swipeDistance < -swipeThreshold && navConfig.rightTarget) {
-        window.location.href = navConfig.rightTarget;
+    else if (swipeDistance < -swipeThreshold && navConfig.leftTarget) {
+        window.location.href = navConfig.leftTarget;
     }
 }
 
