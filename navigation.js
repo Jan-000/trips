@@ -58,11 +58,9 @@ function createHintBar() {
         .hint-bar-track {
             display: flex;
             gap: 40px;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
+            background: transparent;
             padding: 8px 24px;
             border-radius: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
@@ -70,7 +68,7 @@ function createHintBar() {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             font-size: 13px;
             font-weight: 500;
-            color: #999;
+            color: #666;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             white-space: nowrap;
             cursor: pointer;
@@ -85,16 +83,12 @@ function createHintBar() {
         }
         
         @media (prefers-color-scheme: dark) {
-            .hint-bar-track {
-                background: rgba(40, 40, 40, 0.9);
-            }
-            
             .hint-label {
                 color: #666;
             }
-            
+
             .hint-label.active {
-                color: #fff;
+                color: #111;
             }
         }
     `;
