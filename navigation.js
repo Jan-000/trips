@@ -165,24 +165,24 @@ function handleSwipe() {
     const swipeDistance = touchEndX - touchStartX;
     
     // Swipe right (positive distance)
-    if (swipeDistance > swipeThreshold && navConfig.rightTarget) {
-        window.location.href = navConfig.rightTarget;
+    if (swipeDistance > swipeThreshold && navConfig.leftTarget) {
+        window.location.href = navConfig.leftTarget;
     }
     // Swipe left (negative distance)
-    else if (swipeDistance < -swipeThreshold && navConfig.leftTarget) {
-        window.location.href = navConfig.leftTarget;
+    else if (swipeDistance < -swipeThreshold && navConfig.rightTarget) {
+        window.location.href = navConfig.rightTarget;
     }
 }
 
 // Handle keyboard events
 function handleKeyPress(event) {
     // Right arrow key
-    if (event.key === 'ArrowRight' && navConfig.rightTarget) {
-        window.location.href = navConfig.rightTarget;
+    if (event.key === 'ArrowRight' && navConfig.leftTarget) {
+        window.location.href = navConfig.leftTarget;
     }
     // Left arrow key
-    else if (event.key === 'ArrowLeft' && navConfig.leftTarget) {
-        window.location.href = navConfig.leftTarget;
+    else if (event.key === 'ArrowLeft' && navConfig.rightTarget) {
+        window.location.href = navConfig.rightTarget;
     }
 }
 
