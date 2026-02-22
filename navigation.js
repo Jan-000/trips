@@ -6,12 +6,149 @@ let swipeThreshold = 50; // Minimum swipe distance to trigger navigation
 // Configuration for navigation targets (set via data attributes or global config)
 let navConfig = {
     leftTarget: null,  // URL to navigate on left swipe/arrow
-    rightTarget: null  // URL to navigate on right swipe/arrow
+    rightTarget: null,  // URL to navigate on right swipe/arrow
+    currentView: 'map',  // Current view: 'map' or 'text'
+    showAllTrips: false,  // Whether to show "all trips" label
+    allTripsTarget: null  // URL for "all trips" navigation
 };
 
 // Initialize navigation with custom targets
 function initNavigation(config) {
     navConfig = { ...navConfig, ...config };
+    createHintBar();
+    updateHintBar();
+}
+
+// Create the hint bar element
+function createHintBar() {
+    // Check if hint bar already exists
+    if (document.querySelector('.hint-bar')) return;
+    
+    const hintBar = document.createElement('div');
+    hintBar.className = 'hint-bar';
+    
+    let labelsHTML = `
+        <span class="hint-label" data-view="map">map</span>
+        <span class="hint-label" data-view="text">text</span>
+    `;
+    
+    if (navConfig.showAllTrips) {
+        labelsHTML += `<span class="hint-label" data-view="all">all trips</span>`;
+    }
+    
+    hintBar.innerHTML = `
+        <div class="hint-bar-track">
+            ${labelsHTML}
+        </div>
+    `;
+    
+    // Add styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .hint-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+        
+        .hint-bar-track {
+            display: flex;
+            gap: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 8px 24px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .hint-label {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            color: #999;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            cursor: pointer;
+            pointer-events: auto;
+        }
+        
+        .hint-label.active {
+            color: #111;
+            font-weight: 600;
+            transform: scale(1.1);
+            cursor: default;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            .hint-bar-track {
+                background: rgba(40, 40, 40, 0.9);
+            }
+            
+            .hint-label {
+                color: #666;
+            }
+            
+            .hint-label.active {
+                color: #fff;
+            }
+        }
+    `;
+    
+    document.head.appendChild(style);
+    document.body.appendChild(hintBar);
+    
+    // Add click handlers to labels
+    const labels = hintBar.querySelectorAll('.hint-label');
+    labels.forEach(label => {
+        label.addEventListener('click', function() {
+            if (this.classList.contains('active')) return;
+            
+            const targetView = this.dataset.view;
+            
+            // Navigate based on current view and target view
+            if (targetView === 'all') {
+                if (navConfig.allTripsTarget) {
+                    window.location.href = navConfig.allTripsTarget;
+                }
+            } else if (navConfig.currentView === 'map' && targetView === 'text') {
+                if (navConfig.leftTarget) {
+                    window.location.href = navConfig.leftTarget;
+                }
+            } else if (navConfig.currentView === 'text' && targetView === 'map') {
+                if (navConfig.rightTarget) {
+                    window.location.href = navConfig.rightTarget;
+                }
+            }
+        });
+    });
+}
+
+// Update hint bar to reflect current view
+function updateHintBar() {
+    const labels = document.querySelectorAll('.hint-label');
+    const track = document.querySelector('.hint-bar-track');
+    
+    if (!labels.length || !track) return;
+    
+    labels.forEach(label => {
+        if (label.dataset.view === navConfig.currentView) {
+            label.classList.add('active');
+        } else {
+            label.classList.remove('active');
+        }
+    });
+    
+    // Center the active label by shifting the track
+    const activeLabel = document.querySelector('.hint-label.active');
+    if (activeLabel) {
+        const trackRect = track.getBoundingClientRect();
+        const labelRect = activeLabel.getBoundingClientRect();
+        const offset = (labelRect.left + labelRect.width / 2) - (trackRect.left + trackRect.width / 2);
+        track.style.transform = `translateX(${-offset}px)`;
+    }
 }
 
 // Handle touch events for mobile swipe
