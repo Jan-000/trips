@@ -73,6 +73,7 @@ function createHintBar() {
             white-space: nowrap;
             cursor: pointer;
             pointer-events: auto;
+            user-select: none;
         }
         
         .hint-label.active {
