@@ -1,8 +1,18 @@
 // Navigation functionality for swipe and scroll
 let touchStartX = 0;
 let touchEndX = 0;
-let scrollThreshold = 100; // Minimum scroll amount to trigger navigation
 let swipeThreshold = 50; // Minimum swipe distance to trigger navigation
+
+// Configuration for navigation targets (set via data attributes or global config)
+let navConfig = {
+    leftTarget: null,  // URL to navigate on left swipe/arrow
+    rightTarget: null  // URL to navigate on right swipe/arrow
+};
+
+// Initialize navigation with custom targets
+function initNavigation(config) {
+    navConfig = { ...navConfig, ...config };
+}
 
 // Handle touch events for mobile swipe
 function handleTouchStart(event) {
@@ -17,32 +27,25 @@ function handleTouchEnd(event) {
 function handleSwipe() {
     const swipeDistance = touchEndX - touchStartX;
     
-    // Swipe right (positive distance greater than threshold)
-    if (swipeDistance > swipeThreshold) {
-        navigateToTrip();
+    // Swipe right (positive distance)
+    if (swipeDistance > swipeThreshold && navConfig.rightTarget) {
+        window.location.href = navConfig.rightTarget;
     }
-}
-
-// Handle scroll events for desktop
-let scrollPosition = 0;
-
-function handleScroll(event) {
-    // Horizontal scroll
-    if (event.deltaX > 0 && event.deltaX > scrollThreshold) {
-        navigateToTrip();
+    // Swipe left (negative distance)
+    else if (swipeDistance < -swipeThreshold && navConfig.leftTarget) {
+        window.location.href = navConfig.leftTarget;
     }
-}
-
-// Navigate to trip1text.html
-function navigateToTrip() {
-    window.location.href = 'trip1text.html';
 }
 
 // Handle keyboard events
 function handleKeyPress(event) {
     // Right arrow key
-    if (event.key === 'ArrowRight') {
-        navigateToTrip();
+    if (event.key === 'ArrowRight' && navConfig.rightTarget) {
+        window.location.href = navConfig.rightTarget;
+    }
+    // Left arrow key
+    else if (event.key === 'ArrowLeft' && navConfig.leftTarget) {
+        window.location.href = navConfig.leftTarget;
     }
 }
 
@@ -51,9 +54,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Touch events for mobile
     document.addEventListener('touchstart', handleTouchStart, false);
     document.addEventListener('touchend', handleTouchEnd, false);
-    
-    // Scroll/wheel events for desktop
-    document.addEventListener('wheel', handleScroll, { passive: false });
     
     // Keyboard events
     document.addEventListener('keydown', handleKeyPress, false);

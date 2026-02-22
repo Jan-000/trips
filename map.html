@@ -6,6 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Map</title>
     <script src="navigation.js"></script>
+    <script>
+        // Configure navigation: left swipe/arrow → trip1text.html, right swipe/arrow → index.html
+        window.addEventListener('DOMContentLoaded', function() {
+            initNavigation({
+                leftTarget: 'trip1text.html',
+                rightTarget: 'index.html'
+            });
+        });
+    </script>
     <style>
         body {
             margin: 0;
@@ -25,12 +34,8 @@
             }
         }
     </style>
-
-<img src="map.png" alt="map of the world">
-
-
 </head>
 <body>
-
+    <img src="map.png" alt="map of the world">
 </body>
 </html>

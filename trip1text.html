@@ -5,6 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Map</title>
+    <script src="navigation.js"></script>
+    <script>
+        // Configure navigation: right swipe/arrow → map.html
+        window.addEventListener('DOMContentLoaded', function() {
+            initNavigation({
+                rightTarget: 'map.html'
+            });
+        });
+    </script>
     <style>
         body {
             margin: 0;
@@ -33,12 +42,9 @@
             }
         }
     </style>
-
-<img src="trip1.png" alt="foo">
-<p> now the long text now the long text now the long text now the long text now the long text now the long text now the long text now the long text now the long text now the long text now the long text now the long text now the long text now the long text now the long text  </p>
-
 </head>
 <body>
-
+    <img src="trip1.png" alt="foo">
+    <p>now the long text now the long text now the long text now the long text now the long text now the long text now the long text now the long text now the long text now the long text now the long text now the long text now the long text now the long text now the long text</p>
 </body>
 </html>

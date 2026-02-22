@@ -44,6 +44,15 @@
         }
       }
     </style>
+    <script src="navigation.js"></script>
+    <script>
+      // Configure navigation: right swipe/arrow → index.html
+      window.addEventListener('DOMContentLoaded', function() {
+        initNavigation({
+          rightTarget: 'index.html'
+        });
+      });
+    </script>
   </head>
   <body>
     <h1>Map 2</h1>
