@@ -30,12 +30,12 @@
       a:hover {
         text-decoration: underline;
       }
-      
+
       img {
         max-width: 100%;
         height: auto;
       }
-      
+
       @media (max-width: 768px) {
         img {
           width: 80%;
@@ -46,10 +46,11 @@
     </style>
     <script src="navigation.js"></script>
     <script>
-      // Configure navigation: right swipe/arrow → index.html
-      window.addEventListener('DOMContentLoaded', function() {
+      // Configure navigation: left swipe/arrow → trip2text.html, right swipe/arrow → index.html
+      window.addEventListener("DOMContentLoaded", function () {
         initNavigation({
-          rightTarget: 'index.html'
+          leftTarget: "trip2text.html",
+          rightTarget: "index.html",
         });
       });
     </script>
