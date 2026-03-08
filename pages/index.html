@@ -29,7 +29,8 @@
         min-height: 100vh;
         font-family: "Space Grotesk", Arial, sans-serif;
         color: var(--ink);
-        background: radial-gradient(
+        background:
+          radial-gradient(
             circle at 20% 20%,
             rgba(249, 214, 74, 0.4),
             transparent 55%
@@ -107,7 +108,9 @@
         flex-direction: column;
         gap: 6px;
         cursor: pointer;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
       }
 
       .trip-card:active {
@@ -164,18 +167,6 @@
       .about-overlay.is-visible {
         transform: translateX(0);
         pointer-events: auto;
-      }
-
-      .about-close {
-        align-self: flex-start;
-        border: 0;
-        background: transparent;
-        color: var(--muted);
-        font-size: 12px;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        cursor: pointer;
-        padding: 0;
       }
 
       .map-frame {
@@ -261,9 +252,11 @@
         width: max-content;
         flex-wrap: nowrap;
         white-space: nowrap;
-        z-index: 10;
+        z-index: 20;
         opacity: 1;
-        transition: opacity 0.35s ease, transform 0.35s ease;
+        transition:
+          opacity 0.35s ease,
+          transform 0.35s ease;
       }
 
       .hint-bar.is-hidden {
@@ -279,7 +272,9 @@
         color: var(--muted);
         cursor: pointer;
         user-select: none;
-        transition: color 0.3s ease, transform 0.3s ease;
+        transition:
+          color 0.3s ease,
+          transform 0.3s ease;
       }
 
       .hint-label.active {
@@ -333,6 +328,7 @@
         .rail {
           padding: 40px 120px 140px;
           width: 300vw;
+        }
 
         .trip-card {
           flex-direction: row;
@@ -362,14 +358,18 @@
             <div class="map-route" id="mapRoute">Swipe left when ready</div>
           </div>
           <div class="map-frame" id="mapFrame">
-            <div class="empty-state" id="mapEmpty">Select a trip to load a map.</div>
+            <div class="empty-state" id="mapEmpty">
+              Select a trip to load a map.
+            </div>
             <img id="mapImage" src="" alt="" hidden />
           </div>
         </section>
         <section class="panel gallery" data-panel="gallery">
           <div class="map-meta">
             <div class="map-title" id="galleryTitle">Text</div>
-            <div class="map-route" id="galleryRoute">Swipe right for the map</div>
+            <div class="map-route" id="galleryRoute">
+              Swipe right for the map
+            </div>
           </div>
           <div class="gallery-scroll" id="galleryScroll"></div>
         </section>
@@ -380,13 +380,10 @@
           <div class="map-route">Swipe right for trips</div>
         </div>
         <div class="about-body">
-          I take these trips to slow down and listen to places that are easy
-          to pass by. The routes are modest, the maps are simple, but the time
+          I take these trips to slow down and listen to places that are easy to
+          pass by. The routes are modest, the maps are simple, but the time
           spent moving through them is where the story lives.
         </div>
-        <button class="about-close" type="button" id="aboutClose">
-          Back to trips
-        </button>
       </section>
       <div class="hint-line"></div>
       <div class="hint-bar" id="hintBar">

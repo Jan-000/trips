@@ -78,6 +78,8 @@ const state = {
   lastTripId: null,
   lastNonTripsIndex: null,
   aboutOpen: false,
+  hintFadeContext: null,
+  hintFadeTimer: null,
   touchActive: false,
   touchStartX: 0,
   touchStartY: 0,
@@ -97,7 +99,6 @@ const galleryRoute = document.getElementById("galleryRoute");
 const hintBar = document.getElementById("hintBar");
 const hintLabels = Array.from(document.querySelectorAll(".hint-label"));
 const aboutPanel = document.getElementById("aboutPanel");
-const aboutClose = document.getElementById("aboutClose");
 
 const viewOrder = ["trips", "map", "gallery"];
 
@@ -180,11 +181,22 @@ function renderGallery(items) {
 }
 
 function setView(index, animate) {
+  const previousIndex = state.viewIndex;
   const clamped = Math.max(0, Math.min(viewOrder.length - 1, index));
   state.viewIndex = clamped;
   if (clamped === 1 || clamped === 2) {
     state.lastNonTripsIndex = clamped;
+    state.hintFadeContext = null;
+    if (state.hintFadeTimer) {
+      clearTimeout(state.hintFadeTimer);
+      state.hintFadeTimer = null;
+    }
   }
+
+  if (clamped === 0 && previousIndex !== 0 && !state.aboutOpen) {
+    state.hintFadeContext = "trip";
+  }
+
   rail.style.transition = animate
     ? "transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)"
     : "none";
@@ -193,21 +205,42 @@ function setView(index, animate) {
 }
 
 function updateHint() {
-  const currentView = viewOrder[state.viewIndex];
+  const currentView = state.aboutOpen ? "about" : viewOrder[state.viewIndex];
   hintLabels.forEach((label) => {
     label.classList.toggle("active", label.dataset.view === currentView);
   });
-  hintBar.classList.toggle("is-hidden", state.viewIndex === 0 && !state.aboutOpen);
+  const isHidingOnTrips = state.viewIndex === 0 && !state.aboutOpen;
+  hintBar.classList.toggle("is-hidden", isHidingOnTrips);
 
   const showAboutOnly = state.aboutOpen;
+  const showAboutFadeSet =
+    !state.aboutOpen && state.hintFadeContext === "about";
+  const showTripFadeSet = !state.aboutOpen && state.hintFadeContext === "trip";
+  const isTripsView = state.viewIndex === 0;
   hintLabels.forEach((label) => {
     const isAbout = label.dataset.view === "about";
     const isTrips = label.dataset.view === "trips";
+    const isMap = label.dataset.view === "map";
+    const isText = label.dataset.view === "gallery";
     const shouldHide = showAboutOnly
       ? !(isAbout || isTrips)
-      : isAbout;
+      : showAboutFadeSet
+        ? !(isAbout || isTrips)
+        : showTripFadeSet
+          ? !(isTrips || isMap || isText)
+          : isTripsView
+            ? !isTrips
+            : isAbout;
     label.classList.toggle("is-hidden", shouldHide);
   });
+
+  if (isHidingOnTrips && state.hintFadeContext && !state.hintFadeTimer) {
+    state.hintFadeTimer = window.setTimeout(() => {
+      state.hintFadeContext = null;
+      state.hintFadeTimer = null;
+      updateHint();
+    }, 360);
+  }
 }
 
 function onTouchStart(event) {
@@ -310,6 +343,18 @@ function onHintClick(event) {
   const target = event.target.closest(".hint-label");
   if (!target) return;
   const view = target.dataset.view;
+  if (view === "about") {
+    state.aboutOpen = true;
+    aboutPanel?.classList.add("is-visible");
+    updateHint();
+    return;
+  }
+  if (view === "trips") {
+    state.aboutOpen = false;
+    aboutPanel?.classList.remove("is-visible");
+    setView(0, true);
+    return;
+  }
   const index = viewOrder.indexOf(view);
   if (index === -1) return;
   setView(index, true);
@@ -354,10 +399,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const aboutCard = document.getElementById("aboutCard");
   const openAbout = () => {
     state.aboutOpen = true;
+    state.hintFadeContext = null;
+    if (state.hintFadeTimer) {
+      clearTimeout(state.hintFadeTimer);
+      state.hintFadeTimer = null;
+    }
     aboutPanel?.classList.add("is-visible");
     updateHint();
   };
   const closeAbout = () => {
+    state.hintFadeContext = "about";
     state.aboutOpen = false;
     aboutPanel?.classList.remove("is-visible");
     updateHint();
@@ -365,10 +416,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (aboutCard) {
     aboutCard.addEventListener("click", openAbout);
-  }
-
-  if (aboutClose) {
-    aboutClose.addEventListener("click", closeAbout);
   }
 
   let aboutTouchStartX = 0;
@@ -381,7 +428,7 @@ document.addEventListener("DOMContentLoaded", () => {
       aboutTouchStartX = touch.clientX;
       aboutTouchStartY = touch.clientY;
     },
-    { passive: true }
+    { passive: true },
   );
   aboutPanel?.addEventListener(
     "touchend",
@@ -397,6 +444,6 @@ document.addEventListener("DOMContentLoaded", () => {
         closeAbout();
       }
     },
-    { passive: true }
+    { passive: true },
   );
 });
