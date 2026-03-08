@@ -74,6 +74,8 @@ const state = {
   dragOffset: 0,
   dragLock: null,
   hasCapture: false,
+  galleryTouchStartX: 0,
+  galleryTouchStartY: 0,
 };
 
 const rail = document.getElementById("rail");
@@ -214,6 +216,11 @@ function onPointerUp(event) {
     state.hasCapture = false;
   }
 
+  // Only navigate if drag was not vertical
+  if (state.dragLock === "y") {
+    return;
+  }
+
   const deltaX = event.clientX - state.dragStartX;
   const threshold = window.innerWidth * 0.18;
   let nextIndex = state.viewIndex;
@@ -247,6 +254,29 @@ function onResize() {
   setView(state.viewIndex, false);
 }
 
+function onGalleryTouchStart(event) {
+  const touch = event.touches[0];
+  if (!touch) return;
+  state.galleryTouchStartX = touch.clientX;
+  state.galleryTouchStartY = touch.clientY;
+}
+
+function onGalleryTouchEnd(event) {
+  if (state.viewIndex !== 2) return;
+  const touch = event.changedTouches[0];
+  if (!touch) return;
+
+  const deltaX = touch.clientX - state.galleryTouchStartX;
+  const deltaY = touch.clientY - state.galleryTouchStartY;
+
+  const isRightSwipe = deltaX > 56;
+  const mostlyHorizontal = Math.abs(deltaX) > Math.abs(deltaY) * 1.2;
+
+  if (isRightSwipe && mostlyHorizontal) {
+    setView(1, true);
+  }
+}
+
 function readInitialState() {
   const hash = window.location.hash.replace("#", "");
   const params = new URLSearchParams(hash);
@@ -270,6 +300,13 @@ document.addEventListener("DOMContentLoaded", () => {
   rail.addEventListener("pointerup", onPointerUp);
   rail.addEventListener("pointercancel", onPointerUp);
   rail.addEventListener("pointerleave", onPointerUp);
+
+  galleryScroll.addEventListener("touchstart", onGalleryTouchStart, {
+    passive: true,
+  });
+  galleryScroll.addEventListener("touchend", onGalleryTouchEnd, {
+    passive: true,
+  });
 
   hintBar.addEventListener("click", onHintClick);
   window.addEventListener("keydown", onKeyDown);
