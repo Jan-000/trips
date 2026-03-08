@@ -1,44 +1,12 @@
-<!-- gimme boiler plate for simple html -->
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Map</title>
-    <script src="navigation.js"></script>
     <script>
-        // Configure navigation: left swipe/arrow → trip1text.html, right swipe/arrow → index.html
-        window.addEventListener('DOMContentLoaded', function() {
-            initNavigation({
-                leftTarget: 'trip1text.html',
-                rightTarget: 'index.html',
-                currentView: 'map',
-                showAllTrips: true,
-                allTripsTarget: 'index.html'
-            });
-        });
+      window.location.replace("index.html#trip=nordsee&view=map");
     </script>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-        }
-        
-        img {
-            max-width: 100%;
-            height: auto;
-        }
-        
-        @media (max-width: 768px) {
-            img {
-                width: 80%;
-                display: block;
-                margin: 0 auto;
-            }
-        }
-    </style>
-</head>
-<body>
-    <img src="map.png" alt="map of the world">
-</body>
+  </head>
+  <body></body>
 </html>

@@ -3,55 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Map</title>
-    <script src="navigation.js"></script>
+    <title>Trip 1</title>
     <script>
-      // Configure navigation: right swipe/arrow → map.html
-      window.addEventListener("DOMContentLoaded", function () {
-        initNavigation({
-          rightTarget: "map.html",
-          currentView: "text",
-          showAllTrips: true,
-          allTripsTarget: "index.html"
-        });
-      });
+      window.location.replace("index.html#trip=nordsee&view=gallery");
     </script>
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-      }
-
-      img {
-        max-width: 100%;
-        height: auto;
-      }
-
-      p {
-        max-width: 400px;
-      }
-
-      @media (max-width: 768px) {
-        img {
-          width: 80%;
-          display: block;
-          margin: 0 auto;
-        }
-
-        p {
-          width: 80%;
-          margin: 20px auto;
-        }
-      }
-    </style>
   </head>
-  <body>
-    <img src="trip1.png" alt="foo" />
-    <p>
-      now the long text now the long text now the long text now the long text
-      now the long text now the long text now the long text now the long text
-      now the long text now the long text now the long text now the long text
-      now the long text now the long text now the long text
-    </p>
-  </body>
+  <body></body>
 </html>

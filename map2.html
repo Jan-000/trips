@@ -4,64 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Map 2</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      :root {
-        --ink: #111;
-        --muted: #666;
-      }
-
-      body {
-        font-family: "Roboto", Arial, sans-serif;
-        color: var(--ink);
-        margin: 40px;
-      }
-
-      a {
-        color: var(--muted);
-        text-decoration: none;
-      }
-
-      a:hover {
-        text-decoration: underline;
-      }
-
-      img {
-        max-width: 100%;
-        height: auto;
-      }
-
-      @media (max-width: 768px) {
-        img {
-          width: 80%;
-          display: block;
-          margin: 20px auto;
-        }
-      }
-    </style>
-    <script src="navigation.js"></script>
     <script>
-      // Configure navigation: left swipe/arrow → trip2text.html, right swipe/arrow → index.html
-      window.addEventListener("DOMContentLoaded", function () {
-        initNavigation({
-          leftTarget: "trip2text.html",
-          rightTarget: "index.html",
-          currentView: "map",
-          showAllTrips: true,
-          allTripsTarget: "index.html"
-        });
-      });
+      window.location.replace("index.html#trip=ostsee&view=map");
     </script>
   </head>
-  <body>
-    <h1>Map 2</h1>
-    <p>Ostsee: from Schwerin to Boltenhagen.</p>
-    <img src="map2.png" alt="Map of Ostsee trip" />
-    <p><a href="index.html">Back to trips</a></p>
-  </body>
+  <body></body>
 </html>

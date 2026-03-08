@@ -1,194 +1,237 @@
-// Navigation functionality for swipe and scroll
-let touchStartX = 0;
-let touchEndX = 0;
-let swipeThreshold = 50; // Minimum swipe distance to trigger navigation
+const trips = [
+    {
+        id: "nordsee",
+        name: "Nordsee",
+        route: "from Bad Zwischenhahn to Bensersiel",
+        map: "map.png",
+        gallery: [
+            {
+                src: "trip1.png",
+                caption: "Salt air, long rides, and the horizon never stops."
+            }
+        ]
+    },
+    {
+        id: "ostsee",
+        name: "Ostsee",
+        route: "from Schwerin to Boltenhagen",
+        map: "map2.png",
+        gallery: [
+            {
+                src: "trip2.png",
+                caption: "Low light, cold water, and quiet roads."
+            }
+        ]
+    }
+];
 
-// Configuration for navigation targets (set via data attributes or global config)
-let navConfig = {
-    leftTarget: null,  // URL to navigate on left swipe/arrow
-    rightTarget: null,  // URL to navigate on right swipe/arrow
-    currentView: 'map',  // Current view: 'map' or 'text'
-    showAllTrips: false,  // Whether to show "all trips" label
-    allTripsTarget: null  // URL for "all trips" navigation
+const state = {
+    viewIndex: 0,
+    activeTrip: null,
+    isDragging: false,
+    dragStartX: 0,
+    dragStartY: 0,
+    dragOffset: 0,
+    dragLock: null,
+    hasCapture: false
 };
 
-// Initialize navigation with custom targets
-function initNavigation(config) {
-    navConfig = { ...navConfig, ...config };
-    createHintBar();
-    updateHintBar();
-}
+const rail = document.getElementById("rail");
+const tripList = document.getElementById("tripList");
+const mapTitle = document.getElementById("mapTitle");
+const mapRoute = document.getElementById("mapRoute");
+const mapImage = document.getElementById("mapImage");
+const mapEmpty = document.getElementById("mapEmpty");
+const galleryScroll = document.getElementById("galleryScroll");
+const galleryTitle = document.getElementById("galleryTitle");
+const galleryRoute = document.getElementById("galleryRoute");
+const hintBar = document.getElementById("hintBar");
+const hintLabels = Array.from(document.querySelectorAll(".hint-label"));
 
-// Create the hint bar element
-function createHintBar() {
-    // Check if hint bar already exists
-    if (document.querySelector('.hint-bar')) return;
-    
-    const hintBar = document.createElement('div');
-    hintBar.className = 'hint-bar';
-    
-    let labelsHTML = ``;
+const viewOrder = ["trips", "map", "gallery"];
 
-    if (navConfig.showAllTrips) {
-        labelsHTML += `<span class="hint-label" data-view="all">all trips</span>`;
-    }
-
-    labelsHTML += `
-        <span class="hint-label" data-view="map">map</span>
-        <span class="hint-label" data-view="text">text</span>
-    `;
-    
-    hintBar.innerHTML = `
-        <div class="hint-bar-track">
-            ${labelsHTML}
-        </div>
-    `;
-    
-    // Add styles
-    const style = document.createElement('style');
-    style.textContent = `
-        .hint-bar {
-            position: fixed;
-            bottom: 120px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-        }
-        
-        .hint-bar-track {
-            display: flex;
-            gap: 40px;
-            background: transparent;
-            padding: 8px 24px;
-            border-radius: 20px;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .hint-label {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            font-size: 13px;
-            font-weight: 500;
-            color: #666;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            white-space: nowrap;
-            cursor: pointer;
-            pointer-events: auto;
-            user-select: none;
-        }
-        
-        .hint-label.active {
-            color: #111;
-            font-weight: 600;
-            transform: scale(1.1);
-            cursor: default;
-        }
-        
-        @media (prefers-color-scheme: dark) {
-            .hint-label {
-                color: #666;
-            }
-
-            .hint-label.active {
-                color: #111;
-            }
-        }
-    `;
-    
-    document.head.appendChild(style);
-    document.body.appendChild(hintBar);
-    
-    // Add click handlers to labels
-    const labels = hintBar.querySelectorAll('.hint-label');
-    labels.forEach(label => {
-        label.addEventListener('click', function() {
-            if (this.classList.contains('active')) return;
-            
-            const targetView = this.dataset.view;
-            
-            // Navigate based on current view and target view
-            if (targetView === 'all') {
-                if (navConfig.allTripsTarget) {
-                    window.location.href = navConfig.allTripsTarget;
-                }
-            } else if (navConfig.currentView === 'map' && targetView === 'text') {
-                if (navConfig.leftTarget) {
-                    window.location.href = navConfig.leftTarget;
-                }
-            } else if (navConfig.currentView === 'text' && targetView === 'map') {
-                if (navConfig.rightTarget) {
-                    window.location.href = navConfig.rightTarget;
-                }
-            }
+function renderTrips() {
+    tripList.innerHTML = "";
+    trips.forEach(trip => {
+        const card = document.createElement("li");
+        card.className = "trip-card";
+        card.innerHTML = `
+            <div class="trip-name">${trip.name}</div>
+            <div class="trip-route">${trip.route}</div>
+        `;
+        card.addEventListener("click", () => {
+            setActiveTrip(trip.id);
+            setView(1, true);
         });
+        tripList.appendChild(card);
     });
 }
 
-// Update hint bar to reflect current view
-function updateHintBar() {
-    const labels = document.querySelectorAll('.hint-label');
-    const track = document.querySelector('.hint-bar-track');
-    
-    if (!labels.length || !track) return;
-    
-    labels.forEach(label => {
-        if (label.dataset.view === navConfig.currentView) {
-            label.classList.add('active');
-        } else {
-            label.classList.remove('active');
+function setActiveTrip(tripId) {
+    const trip = trips.find(item => item.id === tripId) || null;
+    state.activeTrip = trip;
+
+    if (!trip) {
+        mapTitle.textContent = "Pick a trip";
+        mapRoute.textContent = "Swipe left when ready";
+        mapImage.hidden = true;
+        mapImage.src = "";
+        mapImage.alt = "";
+        mapEmpty.hidden = false;
+        galleryTitle.textContent = "Text";
+        galleryRoute.textContent = "Swipe right for the map";
+        galleryScroll.innerHTML = "";
+        return;
+    }
+
+    mapTitle.textContent = trip.name;
+    mapRoute.textContent = `${trip.route} - swipe left for text`;
+    mapImage.src = trip.map;
+    mapImage.alt = `${trip.name} map`;
+    mapImage.hidden = false;
+    mapEmpty.hidden = true;
+    galleryTitle.textContent = `${trip.name} text`;
+    galleryRoute.textContent = "Swipe right for the map";
+    renderGallery(trip.gallery);
+}
+
+function renderGallery(items) {
+    galleryScroll.innerHTML = "";
+    items.forEach(item => {
+        const figure = document.createElement("figure");
+        figure.className = "gallery-item";
+        figure.innerHTML = `
+            <img src="${item.src}" alt="${item.caption}" />
+            <figcaption class="gallery-caption">${item.caption}</figcaption>
+        `;
+        galleryScroll.appendChild(figure);
+    });
+    galleryScroll.scrollTop = 0;
+}
+
+function setView(index, animate) {
+    const clamped = Math.max(0, Math.min(viewOrder.length - 1, index));
+    state.viewIndex = clamped;
+    rail.style.transition = animate
+        ? "transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)"
+        : "none";
+    rail.style.transform = `translateX(${-clamped * 100}vw)`;
+    updateHint();
+}
+
+function updateHint() {
+    const currentView = viewOrder[state.viewIndex];
+    hintLabels.forEach(label => {
+        label.classList.toggle("active", label.dataset.view === currentView);
+    });
+}
+
+function onPointerDown(event) {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    state.isDragging = true;
+    state.dragStartX = event.clientX;
+    state.dragStartY = event.clientY;
+    state.dragOffset = -state.viewIndex * window.innerWidth;
+    state.dragLock = null;
+    state.hasCapture = false;
+    rail.style.transition = "none";
+}
+
+function onPointerMove(event) {
+    if (!state.isDragging) return;
+    const deltaX = event.clientX - state.dragStartX;
+    const deltaY = event.clientY - state.dragStartY;
+
+    if (!state.dragLock) {
+        if (Math.abs(deltaX) > 12) {
+            state.dragLock = "x";
+        } else if (Math.abs(deltaY) > 12) {
+            state.dragLock = "y";
         }
-    });
-    
-    // Center the active label by shifting the track
-    const activeLabel = document.querySelector('.hint-label.active');
-    if (activeLabel) {
-        const trackRect = track.getBoundingClientRect();
-        const labelRect = activeLabel.getBoundingClientRect();
-        const offset = (labelRect.left + labelRect.width / 2) - (trackRect.left + trackRect.width / 2);
-        track.style.transform = `translateX(${-offset}px)`;
+    }
+
+    if (state.dragLock === "x" && !state.hasCapture) {
+        rail.setPointerCapture(event.pointerId);
+        state.hasCapture = true;
+    }
+
+    if (state.dragLock === "y") {
+        return;
+    }
+
+    const maxOffset = 0;
+    const minOffset = -(viewOrder.length - 1) * window.innerWidth;
+    let nextOffset = state.dragOffset + deltaX;
+    nextOffset = Math.max(minOffset - 120, Math.min(maxOffset + 120, nextOffset));
+    rail.style.transform = `translateX(${nextOffset}px)`;
+}
+
+function onPointerUp(event) {
+    if (!state.isDragging) return;
+    state.isDragging = false;
+    if (state.hasCapture) {
+        rail.releasePointerCapture(event.pointerId);
+        state.hasCapture = false;
+    }
+
+    const deltaX = event.clientX - state.dragStartX;
+    const threshold = window.innerWidth * 0.18;
+    let nextIndex = state.viewIndex;
+
+    if (Math.abs(deltaX) > threshold) {
+        nextIndex = deltaX < 0 ? state.viewIndex + 1 : state.viewIndex - 1;
+    }
+
+    setView(nextIndex, true);
+}
+
+function onKeyDown(event) {
+    if (event.key === "ArrowLeft") {
+        setView(state.viewIndex - 1, true);
+    }
+    if (event.key === "ArrowRight") {
+        setView(state.viewIndex + 1, true);
     }
 }
 
-// Handle touch events for mobile swipe
-function handleTouchStart(event) {
-    touchStartX = event.changedTouches[0].screenX;
+function onHintClick(event) {
+    const target = event.target.closest(".hint-label");
+    if (!target) return;
+    const view = target.dataset.view;
+    const index = viewOrder.indexOf(view);
+    if (index === -1) return;
+    setView(index, true);
 }
 
-function handleTouchEnd(event) {
-    touchEndX = event.changedTouches[0].screenX;
-    handleSwipe();
+function onResize() {
+    setView(state.viewIndex, false);
 }
 
-function handleSwipe() {
-    const swipeDistance = touchEndX - touchStartX;
-    
-    // Swipe right (positive distance)
-    if (swipeDistance > swipeThreshold && navConfig.rightTarget) {
-        window.location.href = navConfig.rightTarget;
-    }
-    // Swipe left (negative distance)
-    else if (swipeDistance < -swipeThreshold && navConfig.leftTarget) {
-        window.location.href = navConfig.leftTarget;
-    }
+function readInitialState() {
+    const hash = window.location.hash.replace("#", "");
+    const params = new URLSearchParams(hash);
+    const tripId = params.get("trip");
+    const view = params.get("view");
+    const viewIndex = viewOrder.indexOf(view);
+    return {
+        tripId: trips.some(item => item.id === tripId) ? tripId : null,
+        viewIndex: viewIndex === -1 ? 0 : viewIndex
+    };
 }
 
-// Handle keyboard events
-function handleKeyPress(event) {
-    // Right arrow key
-    if (event.key === 'ArrowRight' && navConfig.leftTarget) {
-        window.location.href = navConfig.leftTarget;
-    }
-    // Left arrow key
-    else if (event.key === 'ArrowLeft' && navConfig.rightTarget) {
-        window.location.href = navConfig.rightTarget;
-    }
-}
+document.addEventListener("DOMContentLoaded", () => {
+    renderTrips();
+    const initial = readInitialState();
+    setActiveTrip(initial.tripId || trips[0].id);
+    setView(initial.viewIndex, false);
 
-// Add event listeners when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    // Touch events for mobile
-    document.addEventListener('touchstart', handleTouchStart, false);
-    document.addEventListener('touchend', handleTouchEnd, false);
-    
-    // Keyboard events
-    document.addEventListener('keydown', handleKeyPress, false);
+    rail.addEventListener("pointerdown", onPointerDown);
+    rail.addEventListener("pointermove", onPointerMove);
+    rail.addEventListener("pointerup", onPointerUp);
+    rail.addEventListener("pointercancel", onPointerUp);
+    rail.addEventListener("pointerleave", onPointerUp);
+
+    hintBar.addEventListener("click", onHintClick);
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("resize", onResize);
 });
