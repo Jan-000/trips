@@ -193,9 +193,10 @@
 
       .hint-bar {
         position: fixed;
-        left: 50%;
+        left: 0;
+        right: 0;
         bottom: 36px;
-        transform: translateX(-50%);
+        margin: 0 auto;
         padding: 10px 18px;
         background: rgba(255, 255, 255, 0.9);
         backdrop-filter: blur(12px);
@@ -203,6 +204,9 @@
         box-shadow: var(--shadow);
         display: flex;
         gap: 22px;
+        width: max-content;
+        flex-wrap: nowrap;
+        white-space: nowrap;
         z-index: 10;
       }
 
@@ -219,6 +223,18 @@
       .hint-label.active {
         color: var(--ink);
         transform: scale(1.06);
+      }
+
+      @media (max-width: 380px) {
+        .hint-bar {
+          gap: 14px;
+          padding: 8px 12px;
+        }
+
+        .hint-label {
+          font-size: 12px;
+          letter-spacing: 0.08em;
+        }
       }
 
       .hint-line {
