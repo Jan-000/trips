@@ -112,7 +112,7 @@ function renderTrips() {
         `;
     card.addEventListener("click", () => {
       setActiveTrip(trip.id);
-      setView(2, true);
+      setView(1, true);
     });
     tripList.appendChild(card);
   });
