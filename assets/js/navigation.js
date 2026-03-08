@@ -102,6 +102,37 @@ const aboutPanel = document.getElementById("aboutPanel");
 
 const viewOrder = ["trips", "map", "gallery"];
 
+function clearHintFadeTimer() {
+  if (!state.hintFadeTimer) {
+    return;
+  }
+  clearTimeout(state.hintFadeTimer);
+  state.hintFadeTimer = null;
+}
+
+function showNoTripState() {
+  mapTitle.textContent = "Pick a trip";
+  mapRoute.textContent = "Swipe left when ready";
+  mapImage.hidden = true;
+  mapImage.src = "";
+  mapImage.alt = "";
+  mapEmpty.textContent = "Select a trip to load a map.";
+  mapEmpty.hidden = false;
+  galleryTitle.textContent = "Text";
+  galleryRoute.textContent = "Swipe right for the map";
+  galleryScroll.innerHTML = "";
+}
+
+function setAboutPanelOpen(isOpen, hintFadeContext = null) {
+  state.aboutOpen = isOpen;
+  state.hintFadeContext = hintFadeContext;
+  if (isOpen) {
+    clearHintFadeTimer();
+  }
+  aboutPanel?.classList.toggle("is-visible", isOpen);
+  updateHint();
+}
+
 function renderTrips() {
   tripList.innerHTML = "";
   trips.forEach((trip) => {
@@ -127,16 +158,7 @@ function setActiveTrip(tripId) {
   }
 
   if (!trip) {
-    mapTitle.textContent = "Pick a trip";
-    mapRoute.textContent = "Swipe left when ready";
-    mapImage.hidden = true;
-    mapImage.src = "";
-    mapImage.alt = "";
-    mapEmpty.textContent = "Select a trip to load a map.";
-    mapEmpty.hidden = false;
-    galleryTitle.textContent = "Text";
-    galleryRoute.textContent = "Swipe right for the map";
-    galleryScroll.innerHTML = "";
+    showNoTripState();
     return;
   }
 
@@ -187,10 +209,7 @@ function setView(index, animate) {
   if (clamped === 1 || clamped === 2) {
     state.lastNonTripsIndex = clamped;
     state.hintFadeContext = null;
-    if (state.hintFadeTimer) {
-      clearTimeout(state.hintFadeTimer);
-      state.hintFadeTimer = null;
-    }
+    clearHintFadeTimer();
   }
 
   if (clamped === 0 && previousIndex !== 0 && !state.aboutOpen) {
@@ -311,13 +330,7 @@ function onTouchEnd(event) {
         nextIndex = state.viewIndex + 1;
       }
     } else {
-      if (state.viewIndex === 1) {
-        nextIndex = 0;
-      } else if (state.viewIndex === 0) {
-        nextIndex = 0;
-      } else {
-        nextIndex = state.viewIndex - 1;
-      }
+      nextIndex = state.viewIndex <= 1 ? 0 : state.viewIndex - 1;
     }
   }
 
@@ -344,14 +357,11 @@ function onHintClick(event) {
   if (!target) return;
   const view = target.dataset.view;
   if (view === "about") {
-    state.aboutOpen = true;
-    aboutPanel?.classList.add("is-visible");
-    updateHint();
+    setAboutPanelOpen(true);
     return;
   }
   if (view === "trips") {
-    state.aboutOpen = false;
-    aboutPanel?.classList.remove("is-visible");
+    setAboutPanelOpen(false);
     setView(0, true);
     return;
   }
@@ -397,22 +407,8 @@ document.addEventListener("DOMContentLoaded", () => {
   window.addEventListener("resize", onResize);
 
   const aboutCard = document.getElementById("aboutCard");
-  const openAbout = () => {
-    state.aboutOpen = true;
-    state.hintFadeContext = null;
-    if (state.hintFadeTimer) {
-      clearTimeout(state.hintFadeTimer);
-      state.hintFadeTimer = null;
-    }
-    aboutPanel?.classList.add("is-visible");
-    updateHint();
-  };
-  const closeAbout = () => {
-    state.hintFadeContext = "about";
-    state.aboutOpen = false;
-    aboutPanel?.classList.remove("is-visible");
-    updateHint();
-  };
+  const openAbout = () => setAboutPanelOpen(true);
+  const closeAbout = () => setAboutPanelOpen(false, "about");
 
   if (aboutCard) {
     aboutCard.addEventListener("click", openAbout);
