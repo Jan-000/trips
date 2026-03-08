@@ -208,6 +208,14 @@
         flex-wrap: nowrap;
         white-space: nowrap;
         z-index: 10;
+        opacity: 1;
+        transition: opacity 0.35s ease, transform 0.35s ease;
+      }
+
+      .hint-bar.is-hidden {
+        opacity: 0;
+        transform: translateY(10px);
+        pointer-events: none;
       }
 
       .hint-label {

@@ -163,6 +163,7 @@ function updateHint() {
   hintLabels.forEach((label) => {
     label.classList.toggle("active", label.dataset.view === currentView);
   });
+  hintBar.classList.toggle("is-hidden", state.viewIndex === 0);
 }
 
 function onTouchStart(event) {
