@@ -63,11 +63,21 @@ const trips = [
       },
     ],
   },
+  {
+    id: "partwitzer",
+    name: "Partwitzer See",
+    route: "map and photos coming soon",
+    map: "",
+    gallery: [],
+  },
 ];
 
 const state = {
   viewIndex: 0,
   activeTrip: null,
+  lastTripId: null,
+  lastNonTripsIndex: null,
+  aboutOpen: false,
   touchActive: false,
   touchStartX: 0,
   touchStartY: 0,
@@ -86,6 +96,8 @@ const galleryTitle = document.getElementById("galleryTitle");
 const galleryRoute = document.getElementById("galleryRoute");
 const hintBar = document.getElementById("hintBar");
 const hintLabels = Array.from(document.querySelectorAll(".hint-label"));
+const aboutPanel = document.getElementById("aboutPanel");
+const aboutClose = document.getElementById("aboutClose");
 
 const viewOrder = ["trips", "map", "gallery"];
 
@@ -100,7 +112,7 @@ function renderTrips() {
         `;
     card.addEventListener("click", () => {
       setActiveTrip(trip.id);
-      setView(1, true);
+      setView(2, true);
     });
     tripList.appendChild(card);
   });
@@ -109,6 +121,9 @@ function renderTrips() {
 function setActiveTrip(tripId) {
   const trip = trips.find((item) => item.id === tripId) || null;
   state.activeTrip = trip;
+  if (trip) {
+    state.lastTripId = trip.id;
+  }
 
   if (!trip) {
     mapTitle.textContent = "Pick a trip";
@@ -116,6 +131,7 @@ function setActiveTrip(tripId) {
     mapImage.hidden = true;
     mapImage.src = "";
     mapImage.alt = "";
+    mapEmpty.textContent = "Select a trip to load a map.";
     mapEmpty.hidden = false;
     galleryTitle.textContent = "Text";
     galleryRoute.textContent = "Swipe right for the map";
@@ -125,10 +141,18 @@ function setActiveTrip(tripId) {
 
   mapTitle.textContent = trip.name;
   mapRoute.textContent = `${trip.route} - swipe left for text`;
-  mapImage.src = trip.map;
-  mapImage.alt = `${trip.name} map`;
-  mapImage.hidden = false;
-  mapEmpty.hidden = true;
+  if (trip.map) {
+    mapImage.src = trip.map;
+    mapImage.alt = `${trip.name} map`;
+    mapImage.hidden = false;
+    mapEmpty.hidden = true;
+  } else {
+    mapImage.src = "";
+    mapImage.alt = "";
+    mapImage.hidden = true;
+    mapEmpty.textContent = "Map coming soon.";
+    mapEmpty.hidden = false;
+  }
   galleryTitle.textContent = `${trip.name} text`;
   galleryRoute.textContent = "Swipe right for the map";
   renderGallery(trip.gallery);
@@ -136,6 +160,13 @@ function setActiveTrip(tripId) {
 
 function renderGallery(items) {
   galleryScroll.innerHTML = "";
+  if (!items.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty-state";
+    empty.textContent = "Photos coming soon.";
+    galleryScroll.appendChild(empty);
+    return;
+  }
   items.forEach((item) => {
     const figure = document.createElement("figure");
     figure.className = "gallery-item";
@@ -151,6 +182,9 @@ function renderGallery(items) {
 function setView(index, animate) {
   const clamped = Math.max(0, Math.min(viewOrder.length - 1, index));
   state.viewIndex = clamped;
+  if (clamped === 1 || clamped === 2) {
+    state.lastNonTripsIndex = clamped;
+  }
   rail.style.transition = animate
     ? "transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)"
     : "none";
@@ -163,7 +197,17 @@ function updateHint() {
   hintLabels.forEach((label) => {
     label.classList.toggle("active", label.dataset.view === currentView);
   });
-  hintBar.classList.toggle("is-hidden", state.viewIndex === 0);
+  hintBar.classList.toggle("is-hidden", state.viewIndex === 0 && !state.aboutOpen);
+
+  const showAboutOnly = state.aboutOpen;
+  hintLabels.forEach((label) => {
+    const isAbout = label.dataset.view === "about";
+    const isTrips = label.dataset.view === "trips";
+    const shouldHide = showAboutOnly
+      ? !(isAbout || isTrips)
+      : isAbout;
+    label.classList.toggle("is-hidden", shouldHide);
+  });
 }
 
 function onTouchStart(event) {
@@ -225,7 +269,23 @@ function onTouchEnd(event) {
   let nextIndex = state.viewIndex;
 
   if (Math.abs(deltaX) > threshold) {
-    nextIndex = deltaX < 0 ? state.viewIndex + 1 : state.viewIndex - 1;
+    if (deltaX < 0) {
+      if (state.viewIndex === 0) {
+        if (state.lastNonTripsIndex !== null) {
+          nextIndex = state.lastNonTripsIndex;
+        }
+      } else {
+        nextIndex = state.viewIndex + 1;
+      }
+    } else {
+      if (state.viewIndex === 1) {
+        nextIndex = 0;
+      } else if (state.viewIndex === 0) {
+        nextIndex = 0;
+      } else {
+        nextIndex = state.viewIndex - 1;
+      }
+    }
   }
 
   setView(nextIndex, true);
@@ -274,7 +334,12 @@ function readInitialState() {
 document.addEventListener("DOMContentLoaded", () => {
   renderTrips();
   const initial = readInitialState();
-  setActiveTrip(initial.tripId || trips[0].id);
+  if (initial.tripId) {
+    setActiveTrip(initial.tripId);
+  } else {
+    setActiveTrip(null);
+  }
+  state.lastNonTripsIndex = initial.viewIndex === 0 ? null : initial.viewIndex;
   setView(initial.viewIndex, false);
 
   rail.addEventListener("touchstart", onTouchStart, { passive: true });
@@ -285,4 +350,53 @@ document.addEventListener("DOMContentLoaded", () => {
   hintBar.addEventListener("click", onHintClick);
   window.addEventListener("keydown", onKeyDown);
   window.addEventListener("resize", onResize);
+
+  const aboutCard = document.getElementById("aboutCard");
+  const openAbout = () => {
+    state.aboutOpen = true;
+    aboutPanel?.classList.add("is-visible");
+    updateHint();
+  };
+  const closeAbout = () => {
+    state.aboutOpen = false;
+    aboutPanel?.classList.remove("is-visible");
+    updateHint();
+  };
+
+  if (aboutCard) {
+    aboutCard.addEventListener("click", openAbout);
+  }
+
+  if (aboutClose) {
+    aboutClose.addEventListener("click", closeAbout);
+  }
+
+  let aboutTouchStartX = 0;
+  let aboutTouchStartY = 0;
+  aboutPanel?.addEventListener(
+    "touchstart",
+    (event) => {
+      const touch = event.touches[0];
+      if (!touch) return;
+      aboutTouchStartX = touch.clientX;
+      aboutTouchStartY = touch.clientY;
+    },
+    { passive: true }
+  );
+  aboutPanel?.addEventListener(
+    "touchend",
+    (event) => {
+      if (!state.aboutOpen) return;
+      const touch = event.changedTouches[0];
+      if (!touch) return;
+      const deltaX = touch.clientX - aboutTouchStartX;
+      const deltaY = touch.clientY - aboutTouchStartY;
+      const isRightSwipe = deltaX > 56;
+      const mostlyHorizontal = Math.abs(deltaX) > Math.abs(deltaY) * 1.2;
+      if (isRightSwipe && mostlyHorizontal) {
+        closeAbout();
+      }
+    },
+    { passive: true }
+  );
 });

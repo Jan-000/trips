@@ -52,7 +52,7 @@
 
       .rail {
         display: flex;
-        width: 300vw;
+        width: 400vw;
         height: 100vh;
         transform: translateX(0);
         transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
@@ -122,6 +122,60 @@
       .trip-route {
         font-size: 14px;
         color: var(--muted);
+      }
+
+      .about-card {
+        text-align: left;
+        border: 0;
+      }
+
+      .about-card .trip-route {
+        font-size: 12px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .about-body {
+        font-size: 15px;
+        line-height: 1.7;
+        color: var(--muted);
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 24px;
+        padding: 20px;
+        box-shadow: var(--shadow);
+      }
+
+      .about-overlay {
+        position: absolute;
+        inset: 0;
+        padding: 24px 18px 120px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        background: rgba(246, 242, 234, 0.96);
+        opacity: 0;
+        transform: translateX(20px);
+        pointer-events: none;
+        transition: opacity 0.35s ease, transform 0.35s ease;
+        z-index: 20;
+      }
+
+      .about-overlay.is-visible {
+        opacity: 1;
+        transform: translateX(0);
+        pointer-events: auto;
+      }
+
+      .about-close {
+        align-self: flex-start;
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        cursor: pointer;
+        padding: 0;
       }
 
       .map-frame {
@@ -233,6 +287,10 @@
         transform: scale(1.06);
       }
 
+      .hint-label.is-hidden {
+        display: none;
+      }
+
       @media (max-width: 380px) {
         .hint-bar {
           gap: 14px;
@@ -272,9 +330,9 @@
           overflow: auto;
         }
 
-        .panel {
+        .rail {
           padding: 40px 120px 140px;
-        }
+          width: 300vw;
 
         .trip-card {
           flex-direction: row;
@@ -293,6 +351,10 @@
             <div class="title">Na rympal</div>
           </div>
           <ul class="trip-list" id="tripList"></ul>
+          <button class="trip-card about-card" type="button" id="aboutCard">
+            <div class="trip-name">About</div>
+            <div class="trip-route">why I keep riding</div>
+          </button>
         </section>
         <section class="panel map" data-panel="map">
           <div class="map-meta">
@@ -312,9 +374,24 @@
           <div class="gallery-scroll" id="galleryScroll"></div>
         </section>
       </div>
+      <section class="about-overlay" id="aboutPanel">
+        <div class="map-meta">
+          <div class="map-title">About</div>
+          <div class="map-route">Swipe right for trips</div>
+        </div>
+        <div class="about-body">
+          I take these trips to slow down and listen to places that are easy
+          to pass by. The routes are modest, the maps are simple, but the time
+          spent moving through them is where the story lives.
+        </div>
+        <button class="about-close" type="button" id="aboutClose">
+          Back to trips
+        </button>
+      </section>
       <div class="hint-line"></div>
       <div class="hint-bar" id="hintBar">
         <div class="hint-label" data-view="trips">All trips</div>
+        <div class="hint-label" data-view="about">About</div>
         <div class="hint-label" data-view="map">Map</div>
         <div class="hint-label" data-view="gallery">Text</div>
       </div>
