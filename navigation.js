@@ -68,14 +68,11 @@ const trips = [
 const state = {
   viewIndex: 0,
   activeTrip: null,
-  isDragging: false,
-  dragStartX: 0,
-  dragStartY: 0,
-  dragOffset: 0,
-  dragLock: null,
-  hasCapture: false,
-  galleryTouchStartX: 0,
-  galleryTouchStartY: 0,
+  touchActive: false,
+  touchStartX: 0,
+  touchStartY: 0,
+  touchStartOffset: 0,
+  touchLock: null,
 };
 
 const rail = document.getElementById("rail");
@@ -168,60 +165,61 @@ function updateHint() {
   });
 }
 
-function onPointerDown(event) {
-  if (event.pointerType === "mouse" && event.button !== 0) return;
-  state.isDragging = true;
-  state.dragStartX = event.clientX;
-  state.dragStartY = event.clientY;
-  state.dragOffset = -state.viewIndex * window.innerWidth;
-  state.dragLock = null;
-  state.hasCapture = false;
+function onTouchStart(event) {
+  const touch = event.touches[0];
+  if (!touch) return;
+  state.touchActive = true;
+  state.touchStartX = touch.clientX;
+  state.touchStartY = touch.clientY;
+  state.touchStartOffset = -state.viewIndex * window.innerWidth;
+  state.touchLock = null;
   rail.style.transition = "none";
 }
 
-function onPointerMove(event) {
-  if (!state.isDragging) return;
-  const deltaX = event.clientX - state.dragStartX;
-  const deltaY = event.clientY - state.dragStartY;
+function onTouchMove(event) {
+  if (!state.touchActive) return;
+  const touch = event.touches[0];
+  if (!touch) return;
 
-  if (!state.dragLock) {
+  const deltaX = touch.clientX - state.touchStartX;
+  const deltaY = touch.clientY - state.touchStartY;
+
+  if (!state.touchLock) {
     if (Math.abs(deltaX) > 12) {
-      state.dragLock = "x";
+      state.touchLock = "x";
     } else if (Math.abs(deltaY) > 12) {
-      state.dragLock = "y";
+      state.touchLock = "y";
     }
   }
 
-  if (state.dragLock === "x" && !state.hasCapture) {
-    rail.setPointerCapture(event.pointerId);
-    state.hasCapture = true;
-  }
-
-  if (state.dragLock === "y") {
+  if (state.touchLock === "y") {
     return;
   }
 
+  event.preventDefault();
   const maxOffset = 0;
   const minOffset = -(viewOrder.length - 1) * window.innerWidth;
-  let nextOffset = state.dragOffset + deltaX;
+  let nextOffset = state.touchStartOffset + deltaX;
   nextOffset = Math.max(minOffset - 120, Math.min(maxOffset + 120, nextOffset));
   rail.style.transform = `translateX(${nextOffset}px)`;
 }
 
-function onPointerUp(event) {
-  if (!state.isDragging) return;
-  state.isDragging = false;
-  if (state.hasCapture) {
-    rail.releasePointerCapture(event.pointerId);
-    state.hasCapture = false;
-  }
+function onTouchEnd(event) {
+  if (!state.touchActive) return;
+  state.touchActive = false;
 
-  // Only navigate if drag was not vertical
-  if (state.dragLock === "y") {
+  if (state.touchLock === "y") {
+    setView(state.viewIndex, true);
     return;
   }
 
-  const deltaX = event.clientX - state.dragStartX;
+  const touch = event.changedTouches[0];
+  if (!touch) {
+    setView(state.viewIndex, true);
+    return;
+  }
+
+  const deltaX = touch.clientX - state.touchStartX;
   const threshold = window.innerWidth * 0.18;
   let nextIndex = state.viewIndex;
 
@@ -230,6 +228,12 @@ function onPointerUp(event) {
   }
 
   setView(nextIndex, true);
+}
+
+function onTouchCancel() {
+  if (!state.touchActive) return;
+  state.touchActive = false;
+  setView(state.viewIndex, true);
 }
 
 function onKeyDown(event) {
@@ -254,29 +258,6 @@ function onResize() {
   setView(state.viewIndex, false);
 }
 
-function onGalleryTouchStart(event) {
-  const touch = event.touches[0];
-  if (!touch) return;
-  state.galleryTouchStartX = touch.clientX;
-  state.galleryTouchStartY = touch.clientY;
-}
-
-function onGalleryTouchEnd(event) {
-  if (state.viewIndex !== 2) return;
-  const touch = event.changedTouches[0];
-  if (!touch) return;
-
-  const deltaX = touch.clientX - state.galleryTouchStartX;
-  const deltaY = touch.clientY - state.galleryTouchStartY;
-
-  const isRightSwipe = deltaX > 56;
-  const mostlyHorizontal = Math.abs(deltaX) > Math.abs(deltaY) * 1.2;
-
-  if (isRightSwipe && mostlyHorizontal) {
-    setView(1, true);
-  }
-}
-
 function readInitialState() {
   const hash = window.location.hash.replace("#", "");
   const params = new URLSearchParams(hash);
@@ -295,18 +276,10 @@ document.addEventListener("DOMContentLoaded", () => {
   setActiveTrip(initial.tripId || trips[0].id);
   setView(initial.viewIndex, false);
 
-  rail.addEventListener("pointerdown", onPointerDown);
-  rail.addEventListener("pointermove", onPointerMove);
-  rail.addEventListener("pointerup", onPointerUp);
-  rail.addEventListener("pointercancel", onPointerUp);
-  rail.addEventListener("pointerleave", onPointerUp);
-
-  galleryScroll.addEventListener("touchstart", onGalleryTouchStart, {
-    passive: true,
-  });
-  galleryScroll.addEventListener("touchend", onGalleryTouchEnd, {
-    passive: true,
-  });
+  rail.addEventListener("touchstart", onTouchStart, { passive: true });
+  rail.addEventListener("touchmove", onTouchMove, { passive: false });
+  rail.addEventListener("touchend", onTouchEnd, { passive: true });
+  rail.addEventListener("touchcancel", onTouchCancel, { passive: true });
 
   hintBar.addEventListener("click", onHintClick);
   window.addEventListener("keydown", onKeyDown);
