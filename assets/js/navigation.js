@@ -3,22 +3,22 @@ const trips = [
     id: "bensersiel",
     name: "Nordsee",
     route: "from Bad Zwischenhahn to Bensersiel",
-    map: "maps/bensersiel.png",
+    map: "../assets/maps/bensersiel.png",
     gallery: [
       {
-        src: "images/bensersiel/bensersiel2.png",
+        src: "../assets/images/bensersiel/bensersiel2.png",
         caption: "Salt air, long rides, and the horizon never stops.",
       },
       {
-        src: "images/bensersiel/trip2.png",
+        src: "../assets/images/bensersiel/trip2.png",
         caption: "Coastal paths and endless views.",
       },
       {
-        src: "images/bensersiel/trip2_2.png",
+        src: "../assets/images/bensersiel/trip2_2.png",
         caption: "Where the land meets the sea.",
       },
       {
-        src: "images/bensersiel/trip2_2_2.png",
+        src: "../assets/images/bensersiel/trip2_2_2.png",
         caption: "Final stop before the North Sea.",
       },
     ],
@@ -27,14 +27,14 @@ const trips = [
     id: "boltenhagen",
     name: "Ostsee",
     route: "from Schwerin to Boltenhagen",
-    map: "maps/boltenhagen.png",
+    map: "../assets/maps/boltenhagen.png",
     gallery: [
       {
-        src: "images/boltenhagen/boltenhagen.png",
+        src: "../assets/images/boltenhagen/boltenhagen.png",
         caption: "Low light, cold water, and quiet roads.",
       },
       {
-        src: "images/boltenhagen/boltenhagen2.png",
+        src: "../assets/images/boltenhagen/boltenhagen2.png",
         caption: "Baltic coastline in the distance.",
       },
     ],
@@ -43,22 +43,22 @@ const trips = [
     id: "oderbruch",
     name: "Oderbruchbahn",
     route: "from Wriezen to Letschin",
-    map: "maps/oderbruch.png",
+    map: "../assets/maps/oderbruch.png",
     gallery: [
       {
-        src: "images/oderbruch/oderbruch.png",
+        src: "../assets/images/oderbruch/oderbruch.png",
         caption: "Historic railway through the marshlands.",
       },
       {
-        src: "images/oderbruch/oderbruch2.png",
+        src: "../assets/images/oderbruch/oderbruch2.png",
         caption: "Rolling countryside and forgotten tracks.",
       },
       {
-        src: "images/oderbruch/oderbruch3.png",
+        src: "../assets/images/oderbruch/oderbruch3.png",
         caption: "Where time moves slowly.",
       },
       {
-        src: "images/oderbruch/trip1.png",
+        src: "../assets/images/oderbruch/trip1.png",
         caption: "Journey through the Oderbruch.",
       },
     ],
