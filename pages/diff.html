@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>String Diff Tool</title>
+    <script src="https://cdn.jsdelivr.net/npm/diff@5.1.0/dist/diff.min.js"></script>
+    <style>
+                  .styled-input span[style*="background"] {
+                    padding: 0 2px;
+                    border-radius: 2px;
+                  }
+            .styled-input {
+              width: 100%;
+              min-height: 100px;
+              border: 1px solid #ccc;
+              border-radius: 6px;
+              padding: 8px;
+              font-size: 15px;
+              background: #fff;
+              outline: none;
+              margin-bottom: 4px;
+              position: relative;
+              white-space: pre-wrap;
+              word-break: break-word;
+              /* -webkit-user-modify removed to allow rich text editing */
+            }
+            .styled-input b {
+              font-weight: bold;
+            }
+            .styled-input i {
+              font-style: italic;
+            }
+            .styled-input u {
+              text-decoration: underline;
+            }
+            .styled-input:empty:before {
+              content: attr(data-placeholder);
+              color: #aaa;
+              pointer-events: none;
+              position: absolute;
+              left: 8px;
+              top: 8px;
+            }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 2em;
+      }
+      textarea {
+        width: 45%;
+        height: 100px;
+        margin: 0 2%;
+      }
+      #diff-output {
+        margin-top: 2em;
+        display: flex;
+        gap: 2em;
+      }
+      .diff-box {
+        width: 45%;
+        padding: 1em;
+        border-radius: 8px;
+        background: #fafafa;
+        min-height: 60px;
+      }
+      .added {
+        background: #d4fcbc;
+        color: #256029;
+      }
+      .removed {
+        background: #fbb6c2;
+        color: #a1262d;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Online String Diff Tool</h1>
+    <div style="display: flex; gap: 4%">
+      <div style="width: 45%">
+        <div style="margin-bottom: 6px">
+          <button type="button" onclick="applyBgColor('inputA')" style="background: #ffb3de; border: 1px solid #ccc;">BG</button>
+                    <button type="button" onclick="applyBgColor('inputB')" style="background: #ffb3de; border: 1px solid #ccc;">BG</button>
+          <button type="button" onclick="applyStyle('inputA', 'bold')">
+            <b>B</b>
+          </button>
+          <button type="button" onclick="applyStyle('inputA', 'italic')">
+            <i>I</i>
+          </button>
+          <button type="button" onclick="applyStyle('inputA', 'underline')">
+            <u>U</u>
+          </button>
+        </div>
+        <div
+          id="inputA"
+          contenteditable="true"
+          class="styled-input"
+          data-placeholder="Enter first string..."
+        ></div>
+      </div>
+      <div style="width: 45%">
+        <div style="margin-bottom: 6px">
+          <button type="button" onclick="applyStyle('inputB', 'bold')">
+            <b>B</b>
+          </button>
+          <button type="button" onclick="applyStyle('inputB', 'italic')">
+            <i>I</i>
+          </button>
+          <button type="button" onclick="applyStyle('inputB', 'underline')">
+            <u>U</u>
+          </button>
+        </div>
+        <div
+          id="inputB"
+          contenteditable="true"
+          class="styled-input"
+          data-placeholder="Enter second string..."
+        ></div>
+      </div>
+    </div>
+    <button onclick="showDiff()">Show Diff</button>
+    <div id="diff-output">
+      <div class="diff-box" id="diff-left"><b>Deletions</b><br /></div>
+      <div class="diff-box" id="diff-right"><b>Additions</b><br /></div>
+    </div>
+    <script>
+            function applyBgColor(divId) {
+              const div = document.getElementById(divId);
+              div.focus();
+              const selection = window.getSelection();
+              if (!selection.rangeCount) return;
+              const range = selection.getRangeAt(0);
+              if (!div.contains(range.commonAncestorContainer)) return;
+              if (range.collapsed) return;
+              // Create a span with pink background color
+              const span = document.createElement('span');
+              span.style.background = '#ffb3de';
+              range.surroundContents(span);
+              // Move cursor after the span
+              selection.removeAllRanges();
+              const newRange = document.createRange();
+              newRange.setStartAfter(span);
+              newRange.collapse(true);
+              selection.addRange(newRange);
+            }
+      function applyStyle(divId, style) {
+        const div = document.getElementById(divId);
+        div.focus();
+        let command;
+        switch (style) {
+          case "bold":
+            command = "bold";
+            break;
+          case "italic":
+            command = "italic";
+            break;
+          case "underline":
+            command = "underline";
+            break;
+        }
+        if (command) {
+          document.execCommand(command, false, null);
+        }
+      }
+      function showDiff() {
+        const a = document.getElementById("inputA").innerHTML;
+        const b = document.getElementById("inputB").innerHTML;
+        const diff = Diff.diffWords(a, b);
+        let left = "";
+        let right = "";
+        diff.forEach((part) => {
+          if (part.removed) {
+            left += `<span class='removed'>${part.value}</span>`;
+          } else if (part.added) {
+            right += `<span class='added'>${part.value}</span>`;
+          } else {
+            // common part
+            left += part.value;
+            right += part.value;
+          }
+        });
+        document.getElementById("diff-left").innerHTML =
+          "<b>Deletions</b><br>" +
+          (left || '<span style="color:#aaa">(none)</span>');
+        document.getElementById("diff-right").innerHTML =
+          "<b>Additions</b><br>" +
+          (right || '<span style="color:#aaa">(none)</span>');
+      }
+
+      function escapeHtml(text) {
+        const map = {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;",
+        };
+        return text.replace(/[&<>"']/g, (m) => map[m]);
+        // Note: escapeHtml is now only used for textarea input, not for rendering output
+      }
+    </script>
+  </body>
+</html>
