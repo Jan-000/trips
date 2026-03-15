@@ -519,11 +519,21 @@ function enforceWordSelectionWithin(container) {
   if (!anchorBounds || !focusBounds) return;
 
   const newRange = document.createRange();
-  try {
+  // Make selection direction-agnostic: figure out which end is first in the DOM.
+  const tmpA = document.createRange();
+  tmpA.setStart(anchorNorm.node, anchorNorm.offset);
+  tmpA.collapse(true);
+  const tmpB = document.createRange();
+  tmpB.setStart(focusNorm.node, focusNorm.offset);
+  tmpB.collapse(true);
+
+  const cmp = tmpA.compareBoundaryPoints(Range.START_TO_START, tmpB);
+  if (cmp <= 0) {
+    // Anchor comes before focus in the document
     newRange.setStart(anchorNorm.node, anchorBounds.start);
     newRange.setEnd(focusNorm.node, focusBounds.end);
-  } catch (e) {
-    // If direction is reversed (focus before anchor), swap them
+  } else {
+    // Focus comes before anchor – swap
     newRange.setStart(focusNorm.node, focusBounds.start);
     newRange.setEnd(anchorNorm.node, anchorBounds.end);
   }
@@ -563,7 +573,7 @@ function enforceWordSelectionWithin(container) {
 // Global keyboard shortcut: Cmd+R to run "Show Diff" without reloading the page
 window.addEventListener("keydown", (event) => {
   if (!event.metaKey) return;
-  if (event.key !== "e" && event.key !== "R") return;
+  if (event.key !== "r" && event.key !== "R") return;
 
   // Prevent the browser's default refresh on Cmd+R
   event.preventDefault();
