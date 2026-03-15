@@ -213,6 +213,8 @@ function showDiff() {
 
   document.getElementById("diff-left").innerHTML = leftHtml;
   document.getElementById("diff-right").innerHTML = rightHtml;
+
+  setupRevertButtons();
 }
 
 function annotateCorrespondingChanges(parts) {
@@ -311,6 +313,80 @@ function escapeHtml(text) {
   };
   return text.replace(/[&<>\"']/g, (m) => map[m]);
   // Note: escapeHtml is now only used for textarea input, not for rendering output
+}
+
+let currentRevertButton = null;
+let currentRevertTarget = null;
+
+function removeRevertButton() {
+  if (currentRevertButton && currentRevertButton.parentNode) {
+    currentRevertButton.parentNode.removeChild(currentRevertButton);
+  }
+  currentRevertButton = null;
+  currentRevertTarget = null;
+}
+
+function createRevertButton(targetMark) {
+  removeRevertButton();
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.textContent = "revert";
+
+  // Base class
+  btn.className = "revert-button";
+  // Color per side
+  const container = targetMark.closest("#diff-left, #diff-right");
+  if (container && container.id === "diff-left") {
+    btn.classList.add("revert-button-left");
+  } else if (container && container.id === "diff-right") {
+    btn.classList.add("revert-button-right");
+  }
+
+  btn.addEventListener("click", (event) => {
+    event.stopPropagation();
+    // Revert behavior can be implemented here later.
+  });
+
+  // Position absolutely under the clicked mark, without breaking layout
+  const containerRect = container.getBoundingClientRect();
+  const markRect = targetMark.getBoundingClientRect();
+
+  const topOffset = markRect.bottom - containerRect.top + 4;
+  const leftOffset = Math.max(markRect.left - containerRect.left, 0);
+
+  btn.style.top = `${topOffset}px`;
+  btn.style.left = `${leftOffset}px`;
+
+  container.appendChild(btn);
+  currentRevertButton = btn;
+  currentRevertTarget = targetMark;
+}
+
+function setupRevertButtons() {
+  const left = document.getElementById("diff-left");
+  const right = document.getElementById("diff-right");
+
+  const handler = (event) => {
+    const mark = event.target.closest("mark.added, mark.removed");
+    if (!mark) return;
+    event.stopPropagation();
+
+    if (currentRevertTarget === mark) {
+      return;
+    }
+
+    createRevertButton(mark);
+  };
+
+  if (left) {
+    left.addEventListener("click", handler);
+  }
+  if (right) {
+    right.addEventListener("click", handler);
+  }
+
+  document.addEventListener("click", removeRevertButton);
 }
 
 function normalizeToTextNode(node, offset) {
