@@ -280,6 +280,9 @@ function showDiff() {
     comparator: (x, y) => x.word === y.word,
   });
 
+  // Annotate each diff part with the token index ranges it covers
+  annotateTokenRanges(parts, tokensA, tokensB);
+
   annotateCorrespondingChanges(parts);
 
   console.log("Token diff result:", parts);
@@ -290,6 +293,40 @@ function showDiff() {
   document.getElementById("diff-right").innerHTML = rightHtml;
 
   setupRevertButtons();
+
+  // Persist last diff state so that revert operations can update inputB
+  window._lastDiffState = {
+    tokensA,
+    tokensB,
+    parts,
+  };
+}
+
+function annotateTokenRanges(parts, tokensA, tokensB) {
+  let indexA = 0;
+  let indexB = 0;
+
+  parts.forEach((part) => {
+    const len = Array.isArray(part.value) ? part.value.length : 0;
+
+    part.aStart = indexA;
+    part.bStart = indexB;
+
+    if (part.removed && !part.added) {
+      // Tokens only exist in A
+      indexA += len;
+    } else if (part.added && !part.removed) {
+      // Tokens only exist in B
+      indexB += len;
+    } else {
+      // Unchanged tokens exist in both sequences
+      indexA += len;
+      indexB += len;
+    }
+
+    part.aEnd = indexA;
+    part.bEnd = indexB;
+  });
 }
 
 function annotateCorrespondingChanges(parts) {
@@ -425,20 +462,7 @@ function createRevertButton(targetMark) {
     const corrId = currentRevertTarget.getAttribute("corresponding");
     if (!corrId) return;
 
-    const all = document.querySelectorAll(`mark[corresponding="${corrId}"]`);
-    if (!all || all.length < 2) return;
-
-    // Find the counterpart mark (same corr id, different node)
-    let counterpart = null;
-    all.forEach((m) => {
-      if (m !== currentRevertTarget) {
-        counterpart = m;
-      }
-    });
-    if (!counterpart) return;
-
-    const replacement = counterpart.cloneNode(true);
-    currentRevertTarget.parentNode.replaceChild(replacement, currentRevertTarget);
+    applyRevertForCorrespondingChange(parseInt(corrId, 10));
     removeRevertButton();
   });
 
@@ -455,6 +479,61 @@ function createRevertButton(targetMark) {
   container.appendChild(btn);
   currentRevertButton = btn;
   currentRevertTarget = targetMark;
+}
+
+function applyRevertForCorrespondingChange(correspondingId) {
+  const state = window._lastDiffState;
+  if (!state) return;
+
+  const { tokensA, tokensB, parts } = state;
+  if (!tokensA || !tokensB || !parts) return;
+
+  // Find the removal and addition parts that share this corresponding id
+  let removalPart = null;
+  let additionPart = null;
+
+  parts.forEach((part) => {
+    if (part.correspondingId !== correspondingId) return;
+    if (part.removed && !part.added) {
+      removalPart = part;
+    } else if (part.added && !part.removed) {
+      additionPart = part;
+    }
+  });
+
+  if (!removalPart || !additionPart) {
+    return;
+  }
+
+  // Replace the tokens in B that correspond to the "addition" with the
+  // tokens from A that correspond to the "removal".
+  const aSlice = tokensA.slice(removalPart.aStart, removalPart.aEnd);
+  const before = tokensB.slice(0, additionPart.bStart);
+  const after = tokensB.slice(additionPart.bEnd);
+  const newTokensB = before.concat(aSlice, after);
+
+  // Rebuild the right input HTML from the updated token sequence
+  const bEl = document.getElementById("inputB");
+  if (!bEl) return;
+
+  let newHtml = "";
+  newTokensB.forEach((t) => {
+    const space = t.spaceAfter != null ? t.spaceAfter : " ";
+    let piece = escapeHtml(t.word);
+    if (t.bold) {
+      piece = `<b>${piece}</b>`;
+    }
+    if (t.background) {
+      piece = `<span style="background:${t.background}">${piece}</span>`;
+    }
+    newHtml += piece + space;
+  });
+
+  bEl.innerHTML = newHtml.trim();
+
+  // Rerun the diff so that both output boxes are refreshed and the internal
+  // diff state is updated for any further reverts.
+  showDiff();
 }
 
 function setupRevertButtons() {
