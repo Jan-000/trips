@@ -28,7 +28,7 @@ function findEnclosingBgSpan(range) {
     if (
       candidate.contains(range.startContainer) &&
       candidate.contains(range.endContainer) &&
-      candidate.style.background === '#b3deff'
+      candidate.getAttribute('data-bg') === 'blue-highlight'
     ) {
       return candidate;
     }
@@ -48,7 +48,68 @@ function applyBgColor(divId) {
   if (!div.contains(range.commonAncestorContainer)) return;
 
   const spanToToggle = findEnclosingBgSpan(range);
-  if (spanToToggle && spanToToggle.style.background === '#b3deff') {
+  if (spanToToggle) {
+    // Try to remove blue only from the selected portion.
+    // This works best when the blue span contains a single text node.
+    if (
+      spanToToggle.childNodes.length === 1 &&
+      spanToToggle.firstChild.nodeType === Node.TEXT_NODE &&
+      range.startContainer === spanToToggle.firstChild &&
+      range.endContainer === spanToToggle.firstChild
+    ) {
+      const textNode = spanToToggle.firstChild;
+      const text = textNode.textContent || "";
+      const start = range.startOffset;
+      const end = range.endOffset;
+      if (start >= 0 && end <= text.length && start < end) {
+        const beforeText = text.slice(0, start);
+        const middleText = text.slice(start, end);
+        const afterText = text.slice(end);
+
+        const parent = spanToToggle.parentNode;
+        const frag = document.createDocumentFragment();
+
+        if (beforeText) {
+          const beforeSpan = spanToToggle.cloneNode(false);
+          beforeSpan.textContent = beforeText;
+          frag.appendChild(beforeSpan);
+        }
+
+        if (middleText) {
+          // Middle part loses blue background
+          frag.appendChild(document.createTextNode(middleText));
+        }
+
+        if (afterText) {
+          const afterSpan = spanToToggle.cloneNode(false);
+          afterSpan.textContent = afterText;
+          frag.appendChild(afterSpan);
+        }
+
+        parent.replaceChild(frag, spanToToggle);
+
+        // Place caret after the middle segment
+        selection.removeAllRanges();
+        const newRange = document.createRange();
+        // If there is an "after" blue span, put caret before it,
+        // otherwise at the end of the middle text.
+        if (afterText) {
+          const afterNode = parent.childNodes[
+            Array.prototype.indexOf.call(parent.childNodes, frag.lastChild)
+          ];
+          newRange.setStartAfter(afterNode.previousSibling);
+        } else {
+          // Move caret after middle text node
+          const lastNode = frag.lastChild;
+          newRange.setStartAfter(lastNode);
+        }
+        newRange.collapse(true);
+        selection.addRange(newRange);
+        return;
+      }
+    }
+
+    // Fallback: if structure is more complex, remove the whole blue span.
     const parent = spanToToggle.parentNode;
     while (spanToToggle.firstChild) {
       parent.insertBefore(spanToToggle.firstChild, spanToToggle);
@@ -58,7 +119,8 @@ function applyBgColor(divId) {
   }
 
   const span = document.createElement('span');
-  span.style.background = '#b3deff';
+  span.style.background = '#ccb3ff';
+  span.setAttribute('data-bg', 'blue-highlight');
   try {
     range.surroundContents(span);
   } catch (err) {
@@ -573,7 +635,7 @@ function enforceWordSelectionWithin(container) {
 // Global keyboard shortcut: Cmd+R to run "Show Diff" without reloading the page
 window.addEventListener("keydown", (event) => {
   if (!event.metaKey) return;
-  if (event.key !== "r" && event.key !== "R") return;
+  if (event.key !== "e" && event.key !== "E") return;
 
   // Prevent the browser's default refresh on Cmd+R
   event.preventDefault();
