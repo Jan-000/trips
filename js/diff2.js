@@ -80,11 +80,18 @@ function tokenizeSentence(root) {
 
   function walk(node, styleState) {
     if (node.nodeType === Node.TEXT_NODE) {
-      const words = node.textContent.trim().split(/\s+/).filter(Boolean);
+      const text = node.textContent || "";
+      const regex = /(\S+)(\s*)/g;
+      let match;
 
-      for (const word of words) {
+      while ((match = regex.exec(text)) !== null) {
+        const word = match[1];
+        const spaceAfter = match[2] || "";
+        if (!word) continue;
+
         tokens.push({
           word,
+          spaceAfter,
           bold: styleState.bold,
           background: styleState.background,
         });
@@ -118,104 +125,46 @@ function tokenizeSentence(root) {
   return tokens;
 }
 
-function annotateTagState(diffObjectsArray) {
-  let inTag = false;
-  diffObjectsArray.forEach((diffObject) => {
-    diffObject.startsInsideTag = inTag;
-    for (const ch of diffObject.value) {
-      if (ch === '<' && !inTag) {
-        inTag = true;
-      } else if (ch === '>' && inTag) {
-        inTag = false;
-      }
-    }
-    diffObject.endsInsideTag = inTag;
-  });
-  return diffObjectsArray;
-}
+function renderToken(token) {
+  let html = escapeHtml(token.word);
 
-function hasTextOutsideTags(value, startsInsideTag) {
-  let inTag = startsInsideTag;
-  for (const ch of value) {
-    if (ch === '<' && !inTag) {
-      inTag = true;
-      continue;
-    }
-    if (ch === '>' && inTag) {
-      inTag = false;
-      continue;
-    }
-    if (!inTag) {
-      return true;
-    }
-  }
-  return false;
-}
-
-function prepareItemsForWrapping(diffObjectsArray) {
-  // First annotate tag state so we know whether each chunk starts inside a tag.
-  annotateTagState(diffObjectsArray);
-
-  return diffObjectsArray.map((diffObject) => {
-    // If the chunk contains any text outside of tags, it is safe to wrap.
-    diffObject.considerForWrapping = hasTextOutsideTags(
-      diffObject.value,
-      diffObject.startsInsideTag
-    );
-    return diffObject;
-  });
-}
-
-function wrapTextOutsideTags(value, className, startsInsideTag) {
-  let inTag = startsInsideTag;
-  let buffer = "";
-  let output = "";
-
-  const flushBuffer = () => {
-    if (!buffer) return;
-    if (inTag) {
-      output += buffer;
-    } else {
-      output += `<mark class='${className}'>${buffer}</mark>`;
-    }
-    buffer = "";
-  };
-
-  for (const ch of value) {
-    if (ch === '<' && !inTag) {
-      flushBuffer();
-      inTag = true;
-      buffer += ch;
-      continue;
-    }
-    if (ch === '>' && inTag) {
-      buffer += ch;
-      flushBuffer();
-      inTag = false;
-      continue;
-    }
-    buffer += ch;
+  if (token.bold) {
+    html = `<b>${html}</b>`;
   }
 
-  flushBuffer();
-  return output;
-}
+  if (token.background) {
+    html = `<span style="background:${token.background}">${html}</span>`;
+  }
 
-function buildDiffHtml(processedArray, isDeletion) {
-  let html = "";
-  processedArray.forEach((part) => {
-    if (isDeletion ? part.removed : part.added) {
-      if (part.considerForWrapping) {
-        const className = isDeletion ? 'removed' : 'added';
-        html += wrapTextOutsideTags(part.value, className, part.startsInsideTag);
-      } else {
-        html += part.value; // Don't wrap if not safe
-      }
-    } else {
-      html += part.value; // Common parts are always added plain
-    }
-  });
   return html;
+}
+
+function buildSideHtml(parts, side) {
+  let html = "";
+
+  parts.forEach((part) => {
+    const isRemoval = !!part.removed;
+    const isAddition = !!part.added;
+
+    if (isRemoval && side === "left") {
+      part.value.forEach((t) => {
+        const space = t.spaceAfter != null ? t.spaceAfter : " ";
+        html += `<span class="removed">${renderToken(t)}</span>${space}`;
+      });
+    } else if (isAddition && side === "right") {
+      part.value.forEach((t) => {
+        const space = t.spaceAfter != null ? t.spaceAfter : " ";
+        html += `<span class="added">${renderToken(t)}</span>${space}`;
+      });
+    } else if (!isRemoval && !isAddition) {
+      part.value.forEach((t) => {
+        const space = t.spaceAfter != null ? t.spaceAfter : " ";
+        html += renderToken(t) + space;
+      });
+    }
+  });
+
+  return html.trim();
 }
 
 function showDiff() {
@@ -225,8 +174,17 @@ function showDiff() {
   const tokensA = tokenizeSentence(aEl);
   const tokensB = tokenizeSentence(bEl);
 
-  console.log("Tokens A:", tokensA);
-  console.log("Tokens B:", tokensB);
+  const parts = Diff.diffArrays(tokensA, tokensB, {
+    comparator: (x, y) => x.word === y.word,
+  });
+
+  console.log("Token diff result:", parts);
+
+  const leftHtml = "<b>Deletions</b><br>" + buildSideHtml(parts, "left");
+  const rightHtml = "<b>Additions</b><br>" + buildSideHtml(parts, "right");
+
+  document.getElementById("diff-left").innerHTML = leftHtml;
+  document.getElementById("diff-right").innerHTML = rightHtml;
 }
 
 function escapeHtml(text) {
