@@ -119,7 +119,7 @@ function applyBgColor(divId) {
   }
 
   const span = document.createElement('span');
-  span.style.background = '#ccb3ff';
+  span.style.background = '#e1d1ff';
   span.setAttribute('data-bg', 'blue-highlight');
   try {
     range.surroundContents(span);
@@ -223,25 +223,38 @@ function buildSideHtml(parts, side) {
       flushUnchangedBuffer();
       part.value.forEach((t) => {
         const space = t.spaceAfter != null ? t.spaceAfter : " ";
-      const correspondingAttr =
-        part.correspondingId != null
-          ? ` corresponding="${part.correspondingId}"`
-          : "";
-      html += `<mark class="removed"${correspondingAttr}>${renderToken(
-        t
-      )}</mark>${space}`;
+        const correspondingAttr =
+          part.correspondingId != null
+            ? ` corresponding="${part.correspondingId}"`
+            : "";
+
+        // If there is no trailing space on this token and the current
+        // HTML also does not end with whitespace, inject a single leading
+        // space so words like "one two" vs "one" don't collapse to "onetwo".
+        const needsLeadingSpace =
+          !/\s$/.test(html) && !space && html !== "";
+        const leading = needsLeadingSpace ? " " : "";
+
+        html += `${leading}<mark class="removed"${correspondingAttr}>${renderToken(
+          t
+        )}</mark>${space}`;
       });
     } else if (isAddition && side === "right") {
       flushUnchangedBuffer();
       part.value.forEach((t) => {
         const space = t.spaceAfter != null ? t.spaceAfter : " ";
-      const correspondingAttr =
-        part.correspondingId != null
-          ? ` corresponding="${part.correspondingId}"`
-          : "";
-      html += `<mark class="added"${correspondingAttr}>${renderToken(
-        t
-      )}</mark>${space}`;
+        const correspondingAttr =
+          part.correspondingId != null
+            ? ` corresponding="${part.correspondingId}"`
+            : "";
+
+        const needsLeadingSpace =
+          !/\s$/.test(html) && !space && html !== "";
+        const leading = needsLeadingSpace ? " " : "";
+
+        html += `${leading}<mark class="added"${correspondingAttr}>${renderToken(
+          t
+        )}</mark>${space}`;
       });
     } else if (!isRemoval && !isAddition) {
       part.value.forEach((t) => {
@@ -645,3 +658,6 @@ window.addEventListener("keydown", (event) => {
     console.error("Error running showDiff from Cmd+R:", e);
   }
 });
+
+// TODO:
+// - rerun diff upon resolving
