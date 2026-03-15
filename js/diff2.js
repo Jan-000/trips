@@ -345,7 +345,26 @@ function createRevertButton(targetMark) {
 
   btn.addEventListener("click", (event) => {
     event.stopPropagation();
-    // Revert behavior can be implemented here later.
+    // Perform revert when there is a corresponding change
+    if (!currentRevertTarget) return;
+    const corrId = currentRevertTarget.getAttribute("corresponding");
+    if (!corrId) return;
+
+    const all = document.querySelectorAll(`mark[corresponding="${corrId}"]`);
+    if (!all || all.length < 2) return;
+
+    // Find the counterpart mark (same corr id, different node)
+    let counterpart = null;
+    all.forEach((m) => {
+      if (m !== currentRevertTarget) {
+        counterpart = m;
+      }
+    });
+    if (!counterpart) return;
+
+    const replacement = counterpart.cloneNode(true);
+    currentRevertTarget.parentNode.replaceChild(replacement, currentRevertTarget);
+    removeRevertButton();
   });
 
   // Position absolutely under the clicked mark, without breaking layout
