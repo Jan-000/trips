@@ -28,7 +28,7 @@ function findEnclosingBgSpan(range) {
     if (
       candidate.contains(range.startContainer) &&
       candidate.contains(range.endContainer) &&
-      candidate.style.background === '#ffb3de'
+      candidate.style.background === '#b3deff'
     ) {
       return candidate;
     }
@@ -48,7 +48,7 @@ function applyBgColor(divId) {
   if (!div.contains(range.commonAncestorContainer)) return;
 
   const spanToToggle = findEnclosingBgSpan(range);
-  if (spanToToggle && spanToToggle.style.background === '#ffb3de') {
+  if (spanToToggle && spanToToggle.style.background === '#b3deff') {
     const parent = spanToToggle.parentNode;
     while (spanToToggle.firstChild) {
       parent.insertBefore(spanToToggle.firstChild, spanToToggle);
@@ -58,7 +58,7 @@ function applyBgColor(divId) {
   }
 
   const span = document.createElement('span');
-  span.style.background = '#ffb3de';
+  span.style.background = '#b3deff';
   try {
     range.surroundContents(span);
   } catch (err) {
@@ -142,27 +142,54 @@ function renderToken(token) {
 function buildSideHtml(parts, side) {
   let html = "";
 
+  // Third pass: actually build HTML, grouping unchanged by run index
+  let unchangedBuffer = "";
+  let nextUnchangedGroupIndex = 0;
+
+  function flushUnchangedBuffer() {
+    if (!unchangedBuffer) return;
+    nextUnchangedGroupIndex += 1;
+    html += `<mark unchanged="${nextUnchangedGroupIndex}">${unchangedBuffer}</mark>`;
+    unchangedBuffer = "";
+  }
+
   parts.forEach((part) => {
     const isRemoval = !!part.removed;
     const isAddition = !!part.added;
 
     if (isRemoval && side === "left") {
+      flushUnchangedBuffer();
       part.value.forEach((t) => {
         const space = t.spaceAfter != null ? t.spaceAfter : " ";
-        html += `<span class="removed">${renderToken(t)}</span>${space}`;
+      const correspondingAttr =
+        part.correspondingId != null
+          ? ` corresponding="${part.correspondingId}"`
+          : "";
+      html += `<mark class="removed"${correspondingAttr}>${renderToken(
+        t
+      )}</mark>${space}`;
       });
     } else if (isAddition && side === "right") {
+      flushUnchangedBuffer();
       part.value.forEach((t) => {
         const space = t.spaceAfter != null ? t.spaceAfter : " ";
-        html += `<span class="added">${renderToken(t)}</span>${space}`;
+      const correspondingAttr =
+        part.correspondingId != null
+          ? ` corresponding="${part.correspondingId}"`
+          : "";
+      html += `<mark class="added"${correspondingAttr}>${renderToken(
+        t
+      )}</mark>${space}`;
       });
     } else if (!isRemoval && !isAddition) {
       part.value.forEach((t) => {
         const space = t.spaceAfter != null ? t.spaceAfter : " ";
-        html += renderToken(t) + space;
+        unchangedBuffer += renderToken(t) + space;
       });
     }
   });
+
+  flushUnchangedBuffer();
 
   return html.trim();
 }
@@ -178,13 +205,100 @@ function showDiff() {
     comparator: (x, y) => x.word === y.word,
   });
 
-  console.log("Token diff result:", parts);
+  annotateCorrespondingChanges(parts);
 
+  console.log("Token diff result:", parts);
   const leftHtml = "<b>Deletions</b><br>" + buildSideHtml(parts, "left");
   const rightHtml = "<b>Additions</b><br>" + buildSideHtml(parts, "right");
 
   document.getElementById("diff-left").innerHTML = leftHtml;
   document.getElementById("diff-right").innerHTML = rightHtml;
+}
+
+function annotateCorrespondingChanges(parts) {
+  // First pass: assign an index to each unchanged run (common part)
+  let currentUnchangedIndex = 0;
+  const unchangedIndexByPart = {}; // part index -> unchanged group id
+
+  parts.forEach((part, idx) => {
+    const isRemoval = !!part.removed;
+    const isAddition = !!part.added;
+    if (!isRemoval && !isAddition && part.value && part.value.length > 0) {
+      currentUnchangedIndex += 1;
+      part.unchangedGroupIndex = currentUnchangedIndex;
+      unchangedIndexByPart[idx] = currentUnchangedIndex;
+    }
+  });
+
+  // Second pass: for each unchanged run, look separately at the nearest
+  // deletion/addition on the LEFT, and the nearest deletion/addition on the RIGHT.
+  // Left neighbour on left box (deletion) is paired with left neighbour on right
+  // box (addition). Analogously for right neighbours.
+  Object.keys(unchangedIndexByPart).forEach((idxStr) => {
+    const idx = parseInt(idxStr, 10);
+    const groupId = unchangedIndexByPart[idx];
+
+    // ---- LEFT side neighbours ----
+    let leftRemovalIdx = -1;
+    for (let j = idx - 1; j >= 0; j--) {
+      if (parts[j].removed && !parts[j].added) {
+        leftRemovalIdx = j;
+        break;
+      }
+      if (!parts[j].removed && !parts[j].added) {
+        // hit another unchanged block; stop, because visually that would be a different group
+        break;
+      }
+    }
+
+    let leftAdditionIdx = -1;
+    for (let j = idx - 1; j >= 0; j--) {
+      if (parts[j].added && !parts[j].removed) {
+        leftAdditionIdx = j;
+        break;
+      }
+      if (!parts[j].removed && !parts[j].added) {
+        break;
+      }
+    }
+
+    if (leftRemovalIdx !== -1 && leftAdditionIdx !== -1) {
+      // deterministic id for "left" pair of this unchanged group
+      const pairIdLeft = groupId * 2 - 1;
+      parts[leftRemovalIdx].correspondingId = pairIdLeft;
+      parts[leftAdditionIdx].correspondingId = pairIdLeft;
+    }
+
+    // ---- RIGHT side neighbours ----
+    let rightRemovalIdx = -1;
+    for (let j = idx + 1; j < parts.length; j++) {
+      if (parts[j].removed && !parts[j].added) {
+        rightRemovalIdx = j;
+        break;
+      }
+      if (!parts[j].removed && !parts[j].added) {
+        break;
+      }
+    }
+
+    let rightAdditionIdx = -1;
+    for (let j = idx + 1; j < parts.length; j++) {
+      if (parts[j].added && !parts[j].removed) {
+        rightAdditionIdx = j;
+        break;
+      }
+      if (!parts[j].removed && !parts[j].added) {
+        break;
+      }
+    }
+
+    if (rightRemovalIdx !== -1 && rightAdditionIdx !== -1) {
+      // deterministic id for "right" pair of this unchanged group
+      const pairIdRight = groupId * 2;
+      parts[rightRemovalIdx].correspondingId = pairIdRight;
+      parts[rightAdditionIdx].correspondingId = pairIdRight;
+    }
+  });
 }
 
 function escapeHtml(text) {

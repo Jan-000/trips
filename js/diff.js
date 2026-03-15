@@ -47,7 +47,7 @@ function applyBgColor(divId) {
   if (!div.contains(range.commonAncestorContainer)) return;
 
   const markToToggle = findEnclosingMark(range);
-  if (markToToggle && markToToggle.style.background === '#ffb3de') {
+  if (markToToggle && markToToggle.style.background === '#b3deff') {
     const parent = markToToggle.parentNode;
     while (markToToggle.firstChild) {
       parent.insertBefore(markToToggle.firstChild, markToToggle);
@@ -57,7 +57,7 @@ function applyBgColor(divId) {
   }
 
   const mark = document.createElement('mark');
-  mark.style.background = '#ffb3de';
+  mark.style.background = '#b3deff';
   try {
     range.surroundContents(mark);
   } catch (err) {
