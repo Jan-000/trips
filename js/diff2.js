@@ -547,4 +547,29 @@ function enforceWordSelectionWithin(container) {
     }
     enforceWordSelectionWithin(el);
   });
+
+  // Use Tab to move focus between the two inputs (instead of inserting tab)
+  el.addEventListener("keydown", (event) => {
+    if (event.key !== "Tab") return;
+    event.preventDefault();
+    const targetId = id === "inputA" ? "inputB" : "inputA";
+    const other = document.getElementById(targetId);
+    if (other) {
+      other.focus();
+    }
+  });
+});
+
+// Global keyboard shortcut: Cmd+R to run "Show Diff" without reloading the page
+window.addEventListener("keydown", (event) => {
+  if (!event.metaKey) return;
+  if (event.key !== "e" && event.key !== "R") return;
+
+  // Prevent the browser's default refresh on Cmd+R
+  event.preventDefault();
+  try {
+    showDiff();
+  } catch (e) {
+    console.error("Error running showDiff from Cmd+R:", e);
+  }
 });
