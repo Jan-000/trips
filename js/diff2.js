@@ -18,21 +18,22 @@ function applyStyle(divId, style) {
   }
 }
 
-function findEnclosingMark(range) {
+function findEnclosingBgSpan(range) {
   const startNode =
     range.startContainer.nodeType === Node.TEXT_NODE
       ? range.startContainer.parentElement
       : range.startContainer;
-  let candidate = startNode.closest('mark');
+  let candidate = startNode.closest('span');
   while (candidate) {
     if (
       candidate.contains(range.startContainer) &&
-      candidate.contains(range.endContainer)
+      candidate.contains(range.endContainer) &&
+      candidate.style.background === '#ffb3de'
     ) {
       return candidate;
     }
     candidate = candidate.parentElement
-      ? candidate.parentElement.closest('mark')
+      ? candidate.parentElement.closest('span')
       : null;
   }
   return null;
@@ -46,32 +47,75 @@ function applyBgColor(divId) {
   if (range.collapsed) return;
   if (!div.contains(range.commonAncestorContainer)) return;
 
-  const markToToggle = findEnclosingMark(range);
-  if (markToToggle && markToToggle.style.background === '#ffb3de') {
-    const parent = markToToggle.parentNode;
-    while (markToToggle.firstChild) {
-      parent.insertBefore(markToToggle.firstChild, markToToggle);
+  const spanToToggle = findEnclosingBgSpan(range);
+  if (spanToToggle && spanToToggle.style.background === '#ffb3de') {
+    const parent = spanToToggle.parentNode;
+    while (spanToToggle.firstChild) {
+      parent.insertBefore(spanToToggle.firstChild, spanToToggle);
     }
-    parent.removeChild(markToToggle);
+    parent.removeChild(spanToToggle);
     return;
   }
 
-  const mark = document.createElement('mark');
-  mark.style.background = '#ffb3de';
+  const span = document.createElement('span');
+  span.style.background = '#ffb3de';
   try {
-    range.surroundContents(mark);
+    range.surroundContents(span);
   } catch (err) {
     const fragment = range.cloneContents();
-    mark.appendChild(fragment);
+    span.appendChild(fragment);
     range.deleteContents();
-    range.insertNode(mark);
+    range.insertNode(span);
   }
 
   selection.removeAllRanges();
   const newRange = document.createRange();
-  newRange.setStartAfter(mark);
+  newRange.setStartAfter(span);
   newRange.collapse(true);
   selection.addRange(newRange);
+}
+
+function tokenizeSentence(root) {
+  const tokens = [];
+
+  function walk(node, styleState) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const words = node.textContent.trim().split(/\s+/).filter(Boolean);
+
+      for (const word of words) {
+        tokens.push({
+          word,
+          bold: styleState.bold,
+          background: styleState.background,
+        });
+      }
+      return;
+    }
+
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+
+    const nextStyle = { ...styleState };
+
+    if (node.tagName === "B" || node.tagName === "STRONG") {
+      nextStyle.bold = true;
+    }
+
+    if (node.tagName === "SPAN") {
+      const bg = node.style.background || node.style.backgroundColor;
+      if (bg) nextStyle.background = bg;
+    }
+
+    for (const child of node.childNodes) {
+      walk(child, nextStyle);
+    }
+  }
+
+  walk(root, {
+    bold: false,
+    background: null,
+  });
+
+  return tokens;
 }
 
 function annotateTagState(diffObjectsArray) {
@@ -175,33 +219,14 @@ function buildDiffHtml(processedArray, isDeletion) {
 }
 
 function showDiff() {
-  const a = document.getElementById("inputA").innerHTML;
-  const b = document.getElementById("inputB").innerHTML;
-  const diff = Diff.diffWords(a, b);
-  console.log('Diff output:', diff);
-  // Create arrays for additions+common and deletions+common parts
-  const additionsCommon = diff.filter(part => !part.removed);
-  const deletionsCommon = diff.filter(part => !part.added);
-  console.log('Additions + existing:', additionsCommon);
-  console.log('Deletions + existing:', deletionsCommon);
+  const aEl = document.getElementById("inputA");
+  const bEl = document.getElementById("inputB");
 
-  // Process each array to flag parts for wrapping
-  const processedAdditions = prepareItemsForWrapping(additionsCommon);
-  const processedDeletions = prepareItemsForWrapping(deletionsCommon);
+  const tokensA = tokenizeSentence(aEl);
+  const tokensB = tokenizeSentence(bEl);
 
-  // Build the HTML strings, wrapping parts that are safe to wrap
-  const left = buildDiffHtml(processedDeletions, true);
-  const right = buildDiffHtml(processedAdditions, false);
-
-  console.log('Wrapped deletions HTML:', left);
-  console.log('Wrapped additions HTML:', right);
-
-  document.getElementById("diff-left").innerHTML =
-    "<b>Deletions</b><br>" +
-    (left || '<span style="color:#aaa">(none)</span>');
-  document.getElementById("diff-right").innerHTML =
-    "<b>Additions</b><br>" +
-    (right || '<span style="color:#aaa">(none)</span>');
+  console.log("Tokens A:", tokensA);
+  console.log("Tokens B:", tokensB);
 }
 
 function escapeHtml(text) {
@@ -215,3 +240,144 @@ function escapeHtml(text) {
   return text.replace(/[&<>\"']/g, (m) => map[m]);
   // Note: escapeHtml is now only used for textarea input, not for rendering output
 }
+
+function normalizeToTextNode(node, offset) {
+  if (!node) return null;
+
+  if (node.nodeType === Node.TEXT_NODE) {
+    return { node, offset };
+  }
+
+  const children = node.childNodes;
+  if (!children || children.length === 0) {
+    return null;
+  }
+
+  let idx = Math.min(offset, children.length - 1);
+  let current = children[idx];
+
+  // Descend to a text node if possible
+  while (current && current.nodeType !== Node.TEXT_NODE) {
+    if (current.childNodes && current.childNodes.length > 0) {
+      current = current.childNodes[0];
+    } else {
+      break;
+    }
+  }
+
+  if (!current || current.nodeType !== Node.TEXT_NODE) {
+    return null;
+  }
+
+  return { node: current, offset: Math.min(offset, current.textContent.length) };
+}
+
+function getWordBoundaries(text, index) {
+  if (!text || index < 0 || index > text.length) {
+    return null;
+  }
+
+  const isWhitespace = (ch) => /\s/.test(ch);
+
+  // Prefer character to the left as the "current" one when possible
+  const leftIndex = index > 0 ? index - 1 : index;
+  const rightIndex = index < text.length ? index : text.length - 1;
+
+  const leftChar = text[leftIndex];
+  const rightChar = text[rightIndex];
+
+  // If we're adjacent to or on whitespace, select the contiguous whitespace run
+  if (leftChar && isWhitespace(leftChar)) {
+    let start = leftIndex;
+    while (start > 0 && isWhitespace(text[start - 1])) {
+      start--;
+    }
+    let end = leftIndex + 1;
+    while (end < text.length && isWhitespace(text[end])) {
+      end++;
+    }
+    return { start, end };
+  }
+
+  if (rightChar && isWhitespace(rightChar)) {
+    let start = rightIndex;
+    while (start > 0 && isWhitespace(text[start - 1])) {
+      start--;
+    }
+    let end = rightIndex + 1;
+    while (end < text.length && isWhitespace(text[end])) {
+      end++;
+    }
+    return { start, end };
+  }
+
+  // Otherwise, select the contiguous non-whitespace "word" run
+  let i = index;
+  if (i === text.length) {
+    i = text.length - 1;
+  }
+
+  if (isWhitespace(text[i])) {
+    return null;
+  }
+
+  let start = i;
+  while (start > 0 && !isWhitespace(text[start - 1])) {
+    start--;
+  }
+  let end = i + 1;
+  while (end < text.length && !isWhitespace(text[end])) {
+    end++;
+  }
+
+  return { start, end };
+}
+
+function enforceWordSelectionWithin(container) {
+  const sel = window.getSelection();
+  if (!sel || !sel.rangeCount) return;
+
+  // Ensure both anchor and focus are inside the container
+  const anchorNorm = normalizeToTextNode(sel.anchorNode, sel.anchorOffset);
+  const focusNorm = normalizeToTextNode(sel.focusNode, sel.focusOffset);
+  if (!anchorNorm || !focusNorm) return;
+  if (!container.contains(anchorNorm.node) || !container.contains(focusNorm.node)) {
+    return;
+  }
+
+  const anchorText = anchorNorm.node.textContent;
+  const focusText = focusNorm.node.textContent;
+  const anchorBounds = getWordBoundaries(anchorText, anchorNorm.offset);
+  const focusBounds = getWordBoundaries(focusText, focusNorm.offset);
+  if (!anchorBounds || !focusBounds) return;
+
+  const newRange = document.createRange();
+  try {
+    newRange.setStart(anchorNorm.node, anchorBounds.start);
+    newRange.setEnd(focusNorm.node, focusBounds.end);
+  } catch (e) {
+    // If direction is reversed (focus before anchor), swap them
+    newRange.setStart(focusNorm.node, focusBounds.start);
+    newRange.setEnd(anchorNorm.node, anchorBounds.end);
+  }
+
+  sel.removeAllRanges();
+  sel.addRange(newRange);
+}
+
+["inputA", "inputB"].forEach((id) => {
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  // Mouse selection snapping (can be revisited separately)
+  el.addEventListener("mouseup", () => enforceWordSelectionWithin(el));
+
+  // Keyboard selection: only snap when using Shift + Arrow keys
+  el.addEventListener("keyup", (event) => {
+    const arrowKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
+    if (!event.shiftKey || !arrowKeys.includes(event.key)) {
+      return;
+    }
+    enforceWordSelectionWithin(el);
+  });
+});
