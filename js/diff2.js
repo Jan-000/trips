@@ -722,6 +722,17 @@ function enforceWordSelectionWithin(container) {
       other.focus();
     }
   });
+
+  // Automatically rerun diff whenever the right input changes
+  if (id === "inputB") {
+    el.addEventListener("input", () => {
+      try {
+        showDiff();
+      } catch (e) {
+        console.error("Error running showDiff from inputB change:", e);
+      }
+    });
+  }
 });
 
 // Global keyboard shortcut: Cmd+R to run "Show Diff" without reloading the page
