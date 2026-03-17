@@ -6,20 +6,36 @@ const trips = [
     map: "../assets/maps/bensersiel.png",
     gallery: [
       {
-        src: "../assets/images/bensersiel/bensersiel2.png",
+        src: "../assets/images/bensersiel/able/20260214_035332.jpg",
         caption: "Salt air, long rides, and the horizon never stops.",
       },
       {
-        src: "../assets/images/bensersiel/trip2.png",
+        src: "../assets/images/bensersiel/able/20260214_085600.jpg",
         caption: "Coastal paths and endless views.",
       },
       {
-        src: "../assets/images/bensersiel/trip2_2.png",
+        src: "../assets/images/bensersiel/able/20260214_153805.jpg",
         caption: "Where the land meets the sea.",
       },
       {
-        src: "../assets/images/bensersiel/trip2_2_2.png",
+        src: "../assets/images/bensersiel/able/20260214_154044.jpg",
         caption: "Final stop before the North Sea.",
+      },
+      {
+        src: "../assets/images/bensersiel/able/20260214_164107.jpg",
+        caption: "Journey through the northern coast.",
+      },
+      {
+        src: "../assets/images/bensersiel/able/20260214_165647.jpg",
+        caption: "Quiet moments at the edge of the sea.",
+      },
+      {
+        src: "../assets/images/bensersiel/able/20260214_172639.jpg",
+        caption: "Sunset on the salt marshes.",
+      },
+      {
+        src: "../assets/images/bensersiel/able/20260214_182439.jpg",
+        caption: "Last light before dusk.",
       },
     ],
   },
@@ -30,12 +46,20 @@ const trips = [
     map: "../assets/maps/boltenhagen.png",
     gallery: [
       {
-        src: "../assets/images/boltenhagen/boltenhagen.png",
+        src: "../assets/images/boltenhagen/able/20250118_093845.jpg",
         caption: "Low light, cold water, and quiet roads.",
       },
       {
-        src: "../assets/images/boltenhagen/boltenhagen2.png",
+        src: "../assets/images/boltenhagen/able/20250118_114016.jpg",
         caption: "Baltic coastline in the distance.",
+      },
+      {
+        src: "../assets/images/boltenhagen/able/20250118_135411.jpg",
+        caption: "Frozen shores and winter light.",
+      },
+      {
+        src: "../assets/images/boltenhagen/able/20250118_135536.jpg",
+        caption: "Journey along the Baltic.",
       },
     ],
   },
@@ -46,19 +70,19 @@ const trips = [
     map: "../assets/maps/oderbruch.png",
     gallery: [
       {
-        src: "../assets/images/oderbruch/oderbruch.png",
+        src: "../assets/images/oderbruch/able/20250209_085846.jpg",
         caption: "Historic railway through the marshlands.",
       },
       {
-        src: "../assets/images/oderbruch/oderbruch2.png",
+        src: "../assets/images/oderbruch/able/20250209_085901.png",
         caption: "Rolling countryside and forgotten tracks.",
       },
       {
-        src: "../assets/images/oderbruch/oderbruch3.png",
+        src: "../assets/images/oderbruch/able/20250209_114548.jpg",
         caption: "Where time moves slowly.",
       },
       {
-        src: "../assets/images/oderbruch/trip1.png",
+        src: "../assets/images/oderbruch/able/20250209_114750.jpg",
         caption: "Journey through the Oderbruch.",
       },
     ],
@@ -66,9 +90,50 @@ const trips = [
   {
     id: "partwitzer",
     name: "Partwitzer See",
-    route: "map and photos coming soon",
+    route: "around the lake",
     map: "",
-    gallery: [],
+    gallery: [
+      {
+        src: "../assets/images/partwitzer/able/20260307_055758.jpg",
+        caption: "Early morning light over the lake.",
+      },
+      {
+        src: "../assets/images/partwitzer/able/20260307_083159.jpg",
+        caption: "Mirror-still waters at dawn.",
+      },
+      {
+        src: "../assets/images/partwitzer/able/20260307_090254.jpg",
+        caption: "Quiet paths around Partwitzer See.",
+      },
+      {
+        src: "../assets/images/partwitzer/able/20260307_113501.jpg",
+        caption: "Midday reflections on the lake.",
+      },
+      {
+        src: "../assets/images/partwitzer/able/20260307_121621.jpg",
+        caption: "Lakeside vegetation and calm water.",
+      },
+      {
+        src: "../assets/images/partwitzer/able/20260307_122004.jpg",
+        caption: "Hidden corners of the lake.",
+      },
+      {
+        src: "../assets/images/partwitzer/able/20260307_123751.jpg",
+        caption: "Sunlight dancing on the surface.",
+      },
+      {
+        src: "../assets/images/partwitzer/able/20260307_124510.jpg",
+        caption: "The lake's peaceful shores.",
+      },
+      {
+        src: "../assets/images/partwitzer/able/20260307_131804.jpg",
+        caption: "Afternoon ride around the water.",
+      },
+      {
+        src: "../assets/images/partwitzer/able/20260307_155711.jpg",
+        caption: "Partwitzer See—a moment of stillness.",
+      },
+    ],
   },
 ];
 
