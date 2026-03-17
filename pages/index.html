@@ -309,7 +309,7 @@
         background: rgba(17, 17, 17, 0.3);
       }
 
-      /* Swipe hint triangle on the right edge */
+      /* Swipe hint triangle on the right edge (2x bigger) */
       .swipe-hint {
         position: fixed;
         right: 18px;
@@ -317,10 +317,10 @@
         transform: translateY(-50%);
         width: 0;
         height: 0;
-        border-top: 12px solid transparent;
-        border-bottom: 12px solid transparent;
-        border-left: 18px solid rgba(17, 17, 17, 0.12);
-        border-radius: 2px;
+        border-top: 24px solid transparent;
+        border-bottom: 24px solid transparent;
+        border-left: 36px solid rgba(17, 17, 17, 0.12);
+        border-radius: 3px;
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.18s ease, transform 0.18s ease;
@@ -332,15 +332,49 @@
         animation: swipe-bounce 900ms ease-in-out infinite;
       }
 
+      /* Text-view downward hint (2x bigger, vertical movement) */
+      .text-hint {
+        position: fixed;
+        left: 50%;
+        bottom: 18%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 24px solid transparent;
+        border-right: 24px solid transparent;
+        border-top: 36px solid rgba(17, 17, 17, 0.12);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.18s ease, transform 0.18s ease;
+        z-index: 30;
+      }
+
+      .text-hint.is-visible {
+        opacity: 0.95;
+        animation: text-bounce 900ms ease-in-out infinite;
+      }
+
       @keyframes swipe-bounce {
         0% {
           transform: translateY(-50%) translateX(0);
         }
         50% {
-          transform: translateY(-50%) translateX(-8px);
+          transform: translateY(-50%) translateX(-14px);
         }
         100% {
           transform: translateY(-50%) translateX(0);
+        }
+      }
+
+      @keyframes text-bounce {
+        0% {
+          transform: translateX(-50%) translateY(0);
+        }
+        50% {
+          transform: translateX(-50%) translateY(-18px);
+        }
+        100% {
+          transform: translateX(-50%) translateY(0);
         }
       }
 
@@ -422,6 +456,7 @@
       </section>
       <div class="hint-line"></div>
       <div id="swipeHint" class="swipe-hint" aria-hidden="true"></div>
+      <div id="textHint" class="text-hint" aria-hidden="true"></div>
       <div class="hint-bar" id="hintBar">
         <div class="hint-label" data-view="trips">All trips</div>
         <div class="hint-label" data-view="about">About</div>

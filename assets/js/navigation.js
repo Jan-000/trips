@@ -81,6 +81,7 @@ const state = {
   hintFadeContext: null,
   hintFadeTimer: null,
   swipeHintTimer: null,
+  textHintTimer: null,
   touchActive: false,
   touchStartX: 0,
   touchStartY: 0,
@@ -101,6 +102,7 @@ const hintBar = document.getElementById("hintBar");
 const hintLabels = Array.from(document.querySelectorAll(".hint-label"));
 const aboutPanel = document.getElementById("aboutPanel");
 const swipeHint = document.getElementById("swipeHint");
+const textHint = document.getElementById("textHint");
 
 const viewOrder = ["trips", "map", "gallery"];
 
@@ -224,6 +226,19 @@ function setView(index, animate) {
     hideSwipeHint();
   }
 
+  // show a short downward hint when opening the text/gallery view
+  if (clamped === 2 && previousIndex !== 2 && state.activeTrip) {
+    // small delay to allow layout/scroll metrics to stabilize
+    window.setTimeout(() => {
+      showTextHint();
+    }, 120);
+  }
+
+  // hide text hint whenever we navigate away
+  if (clamped !== 2) {
+    hideTextHint();
+  }
+
   if (clamped === 0 && previousIndex !== 0 && !state.aboutOpen) {
     state.hintFadeContext = "trip";
   }
@@ -293,6 +308,31 @@ function hideSwipeHint() {
   if (!swipeHint) return;
   swipeHint.classList.remove("is-visible");
   clearSwipeHintTimer();
+}
+
+function clearTextHintTimer() {
+  if (!state.textHintTimer) return;
+  clearTimeout(state.textHintTimer);
+  state.textHintTimer = null;
+}
+
+function showTextHint() {
+  if (!textHint) return;
+  // only show if the gallery is scrollable
+  try {
+    if (galleryScroll.scrollHeight <= galleryScroll.clientHeight) return;
+  } catch (e) {}
+  clearTextHintTimer();
+  textHint.classList.add("is-visible");
+  state.textHintTimer = window.setTimeout(() => {
+    hideTextHint();
+  }, 3000);
+}
+
+function hideTextHint() {
+  if (!textHint) return;
+  textHint.classList.remove("is-visible");
+  clearTextHintTimer();
 }
 
 function onTouchStart(event) {
@@ -440,6 +480,16 @@ document.addEventListener("DOMContentLoaded", () => {
     "touchstart",
     () => {
       hideSwipeHint();
+      hideTextHint();
+    },
+    { passive: true },
+  );
+
+  // hide the text hint if the user scrolls the gallery
+  galleryScroll?.addEventListener(
+    "scroll",
+    () => {
+      hideTextHint();
     },
     { passive: true },
   );
