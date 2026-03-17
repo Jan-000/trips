@@ -80,6 +80,7 @@ const state = {
   aboutOpen: false,
   hintFadeContext: null,
   hintFadeTimer: null,
+  swipeHintTimer: null,
   touchActive: false,
   touchStartX: 0,
   touchStartY: 0,
@@ -99,6 +100,7 @@ const galleryRoute = document.getElementById("galleryRoute");
 const hintBar = document.getElementById("hintBar");
 const hintLabels = Array.from(document.querySelectorAll(".hint-label"));
 const aboutPanel = document.getElementById("aboutPanel");
+const swipeHint = document.getElementById("swipeHint");
 
 const viewOrder = ["trips", "map", "gallery"];
 
@@ -212,6 +214,16 @@ function setView(index, animate) {
     clearHintFadeTimer();
   }
 
+  // show a short swipe hint when opening the map view for a selected trip
+  if (clamped === 1 && previousIndex !== 1 && state.activeTrip) {
+    showSwipeHint();
+  }
+
+  // hide swipe hint whenever we navigate away
+  if (clamped !== 1) {
+    hideSwipeHint();
+  }
+
   if (clamped === 0 && previousIndex !== 0 && !state.aboutOpen) {
     state.hintFadeContext = "trip";
   }
@@ -260,6 +272,27 @@ function updateHint() {
       updateHint();
     }, 360);
   }
+}
+
+function clearSwipeHintTimer() {
+  if (!state.swipeHintTimer) return;
+  clearTimeout(state.swipeHintTimer);
+  state.swipeHintTimer = null;
+}
+
+function showSwipeHint() {
+  if (!swipeHint) return;
+  clearSwipeHintTimer();
+  swipeHint.classList.add("is-visible");
+  state.swipeHintTimer = window.setTimeout(() => {
+    hideSwipeHint();
+  }, 3000);
+}
+
+function hideSwipeHint() {
+  if (!swipeHint) return;
+  swipeHint.classList.remove("is-visible");
+  clearSwipeHintTimer();
 }
 
 function onTouchStart(event) {
@@ -401,6 +434,15 @@ document.addEventListener("DOMContentLoaded", () => {
   rail.addEventListener("touchmove", onTouchMove, { passive: false });
   rail.addEventListener("touchend", onTouchEnd, { passive: true });
   rail.addEventListener("touchcancel", onTouchCancel, { passive: true });
+
+  // hide the swipe hint as soon as the user begins interaction
+  rail.addEventListener(
+    "touchstart",
+    () => {
+      hideSwipeHint();
+    },
+    { passive: true },
+  );
 
   hintBar.addEventListener("click", onHintClick);
   window.addEventListener("keydown", onKeyDown);

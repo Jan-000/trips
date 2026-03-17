@@ -309,6 +309,41 @@
         background: rgba(17, 17, 17, 0.3);
       }
 
+      /* Swipe hint triangle on the right edge */
+      .swipe-hint {
+        position: fixed;
+        right: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-top: 12px solid transparent;
+        border-bottom: 12px solid transparent;
+        border-left: 18px solid rgba(17, 17, 17, 0.12);
+        border-radius: 2px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.18s ease, transform 0.18s ease;
+        z-index: 30;
+      }
+
+      .swipe-hint.is-visible {
+        opacity: 0.95;
+        animation: swipe-bounce 900ms ease-in-out infinite;
+      }
+
+      @keyframes swipe-bounce {
+        0% {
+          transform: translateY(-50%) translateX(0);
+        }
+        50% {
+          transform: translateY(-50%) translateX(-8px);
+        }
+        100% {
+          transform: translateY(-50%) translateX(0);
+        }
+      }
+
       .empty-state {
         flex: 1;
         display: flex;
@@ -386,6 +421,7 @@
         </div>
       </section>
       <div class="hint-line"></div>
+      <div id="swipeHint" class="swipe-hint" aria-hidden="true"></div>
       <div class="hint-bar" id="hintBar">
         <div class="hint-label" data-view="trips">All trips</div>
         <div class="hint-label" data-view="about">About</div>
