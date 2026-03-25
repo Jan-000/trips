@@ -159,7 +159,6 @@ const tripList = document.getElementById("tripList");
 const mapTitle = document.getElementById("mapTitle");
 const mapRoute = document.getElementById("mapRoute");
 const mapImage = document.getElementById("mapImage");
-const mapEmpty = document.getElementById("mapEmpty");
 const galleryScroll = document.getElementById("galleryScroll");
 const galleryTitle = document.getElementById("galleryTitle");
 const galleryRoute = document.getElementById("galleryRoute");
@@ -185,8 +184,6 @@ function showNoTripState() {
   mapImage.hidden = true;
   mapImage.src = "";
   mapImage.alt = "";
-  mapEmpty.textContent = "Select a trip to load a map.";
-  mapEmpty.hidden = false;
   galleryTitle.textContent = "Text";
   galleryRoute.textContent = "Swipe right for the map";
   galleryScroll.innerHTML = "";
@@ -237,13 +234,11 @@ function setActiveTrip(tripId) {
     mapImage.src = trip.map;
     mapImage.alt = `${trip.name} map`;
     mapImage.hidden = false;
-    mapEmpty.hidden = true;
   } else {
     mapImage.src = "";
     mapImage.alt = "";
     mapImage.hidden = true;
-    mapEmpty.textContent = "Map coming soon.";
-    mapEmpty.hidden = false;
+    mapRoute.textContent = `${trip.route} - map coming soon`;
   }
   galleryTitle.textContent = `${trip.name} text`;
   galleryRoute.textContent = "Swipe right for the map";

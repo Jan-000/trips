@@ -225,8 +225,9 @@
       .gallery-item img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        max-width: none;
         flex: 1;
+        align-self: center;
       }
 
       .gallery-caption {
@@ -427,9 +428,6 @@
             <div class="map-route" id="mapRoute">Swipe left when ready</div>
           </div>
           <div class="map-frame" id="mapFrame">
-            <div class="empty-state" id="mapEmpty">
-              Select a trip to load a map.
-            </div>
             <img id="mapImage" src="" alt="" hidden />
           </div>
         </section>
