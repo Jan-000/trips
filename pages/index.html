@@ -1,468 +1,471 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>On a Whim</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Space+Grotesk:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      :root {
-        --ink: #111;
-        --muted: #6b6b6b;
-        --paper: #f6f2ea;
-        --glow: #f9d64a;
-        --leaf: #7aa37a;
-        --shadow: 0 20px 60px rgba(16, 16, 16, 0.18);
-      }
 
-      * {
-        box-sizing: border-box;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>On a Whim</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Space+Grotesk:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #111;
+      --muted: #6b6b6b;
+      --paper: #f6f2ea;
+      --glow: #f9d64a;
+      --leaf: #7aa37a;
+      --shadow: 0 20px 60px rgba(16, 16, 16, 0.18);
+    }
 
-      body {
-        margin: 0;
-        min-height: 100vh;
-        font-family: "Space Grotesk", Arial, sans-serif;
-        color: var(--ink);
-        background:
-          radial-gradient(
-            circle at 20% 20%,
-            rgba(249, 214, 74, 0.4),
-            transparent 55%
-          ),
-          radial-gradient(
-            circle at 80% 10%,
-            rgba(122, 163, 122, 0.35),
-            transparent 50%
-          ),
-          var(--paper);
-        overflow: hidden;
-      }
+    * {
+      box-sizing: border-box;
+    }
 
-      .app {
-        position: relative;
-        width: 100vw;
-        height: 100vh;
-        overflow: hidden;
-      }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Space Grotesk", Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 20% 20%,
+          rgba(249, 214, 74, 0.4),
+          transparent 55%),
+        radial-gradient(circle at 80% 10%,
+          rgba(122, 163, 122, 0.35),
+          transparent 50%),
+        var(--paper);
+      overflow: hidden;
+    }
 
-      .rail {
-        display: flex;
-        width: 400vw;
-        height: 100vh;
-        transform: translateX(0);
-        transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-        touch-action: pan-y;
-        will-change: transform;
-      }
+    .app {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
 
-      .panel {
-        width: 100vw;
-        height: 100vh;
-        padding: 24px 18px 120px;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        overflow-y: auto;
-      }
+    .rail {
+      display: flex;
+      width: 400vw;
+      height: 100vh;
+      transform: translateX(0);
+      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+      touch-action: pan-y;
+      will-change: transform;
+    }
 
-      .header {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-      }
+    .panel {
+      width: 100vw;
+      height: 100vh;
+      padding: 24px 5px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+    }
 
-      .title {
-        font-family: "Fraunces", "Times New Roman", serif;
-        font-size: 32px;
-        font-weight: 700;
-        letter-spacing: 0.02em;
-      }
+    .header {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
 
-      .subtitle {
-        font-size: 14px;
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.2em;
-      }
+    .title {
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
 
-      .trip-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: grid;
-        gap: 14px;
-      }
+    .subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+    }
 
-      .trip-card {
-        border-radius: 18px;
-        padding: 18px 16px;
-        background: rgba(255, 255, 255, 0.8);
-        box-shadow: var(--shadow);
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        cursor: pointer;
-        transition:
-          transform 0.3s ease,
-          box-shadow 0.3s ease;
-      }
+    .trip-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 14px;
+    }
 
-      .trip-card:active {
-        transform: scale(0.98);
-      }
+    .trip-card {
+      border-radius: 18px;
+      padding: 18px 16px;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+    }
 
-      .trip-name {
-        font-size: 20px;
-        font-weight: 600;
-      }
+    .trip-card:active {
+      transform: scale(0.98);
+    }
 
-      .trip-route {
-        font-size: 14px;
-        color: var(--muted);
-      }
+    .trip-name {
+      font-size: 20px;
+      font-weight: 600;
+    }
 
-      .about-card {
-        text-align: left;
-        border: 0;
-      }
+    .trip-route {
+      font-size: 14px;
+      color: var(--muted);
+    }
 
-      .about-card .trip-route {
-        font-size: 12px;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-      }
+    .about-card {
+      text-align: left;
+      border: 0;
+    }
 
-      .about-body {
-        font-size: 15px;
-        line-height: 1.7;
-        color: var(--muted);
-        background: rgba(255, 255, 255, 0.7);
-        border-radius: 24px;
-        padding: 20px;
-        box-shadow: var(--shadow);
-      }
+    .about-card .trip-route {
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
 
-      .about-overlay {
-        position: absolute;
-        inset: 0;
-        padding: 24px 18px 120px;
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        background: var(--paper);
-        opacity: 1;
-        transform: translateX(100%);
-        pointer-events: none;
-        transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-        will-change: transform;
-        z-index: 20;
-      }
+    .about-body {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
 
-      .about-overlay.is-visible {
-        transform: translateX(0);
-        pointer-events: auto;
-      }
+    .about-overlay {
+      position: absolute;
+      inset: 0;
+      padding: 24px 18px 120px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: var(--paper);
+      opacity: 1;
+      transform: translateX(100%);
+      pointer-events: none;
+      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform;
+      z-index: 20;
+    }
 
-      .map-frame {
-        flex: 1;
-        border-radius: 24px;
-        background: rgba(255, 255, 255, 0.85);
-        box-shadow: var(--shadow);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-      }
+    .about-overlay.is-visible {
+      transform: translateX(0);
+      pointer-events: auto;
+    }
 
-      .map-frame img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-      }
+    .map-frame {
+      flex: 1;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
 
-      .map-meta {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-      }
+    .map-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
 
-      .map-title {
-        font-size: 20px;
-        font-weight: 600;
-      }
+    .map-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
 
-      .map-route {
-        color: var(--muted);
-        font-size: 14px;
-      }
+    .map-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
 
-      .gallery-scroll {
-        flex: 1;
-        overflow-y: auto;
-        scroll-snap-type: y mandatory;
-        display: grid;
-        gap: 16px;
-        padding-bottom: 120px;
-      }
+    .map-route {
+      color: var(--muted);
+      font-size: 14px;
+    }
 
-      .gallery-item {
-        scroll-snap-align: start;
-        height: 100vh;
-        border-radius: 24px;
-        overflow: hidden;
-        background: rgba(255, 255, 255, 0.85);
-        box-shadow: var(--shadow);
-        display: flex;
-        flex-direction: column;
-      }
+    .gallery-scroll {
+      flex: 1;
+      overflow-y: auto;
+      scroll-snap-type: y mandatory;
+      display: grid;
+      gap: 16px;
+      padding-bottom: 120px;
+    }
 
-      .gallery-item img {
-        width: 100%;
-        height: 100%;
-        max-width: none;
-        flex: 1;
-        align-self: center;
-      }
+    .gallery-item {
+      scroll-snap-align: start;
+      height: 80vh;
+      border-radius: 24px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      margin-left: .5rem;
+      margin-right: .5rem
+    }
 
-      .gallery-caption {
-        padding: 14px 16px 18px;
-        font-size: 14px;
-        color: var(--muted);
-        background: rgba(255, 255, 255, 0.9);
-      }
+    .gallery-item img {
+      height: 100%;
+      max-width: none;
+      flex: 1;
+      align-self: center;
+    }
 
+    .gallery-caption {
+      padding: 14px 16px 18px;
+      font-size: 14px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .hint-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 36px;
+      margin: 0 auto;
+      padding: 10px 18px;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(12px);
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      display: flex;
+      gap: 22px;
+      width: max-content;
+      flex-wrap: nowrap;
+      white-space: nowrap;
+      z-index: 20;
+      opacity: 1;
+      transition:
+        opacity 0.35s ease,
+        transform 0.35s ease;
+    }
+
+    .hint-bar.is-hidden {
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+    }
+
+    .hint-label {
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+      transition:
+        color 0.3s ease,
+        transform 0.3s ease;
+    }
+
+    .hint-label.active {
+      color: var(--ink);
+      transform: scale(1.06);
+    }
+
+    .hint-label.is-hidden {
+      display: none;
+    }
+
+    @media (max-width: 380px) {
       .hint-bar {
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 36px;
-        margin: 0 auto;
-        padding: 10px 18px;
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(12px);
-        border-radius: 999px;
-        box-shadow: var(--shadow);
-        display: flex;
-        gap: 22px;
-        width: max-content;
-        flex-wrap: nowrap;
-        white-space: nowrap;
-        z-index: 20;
-        opacity: 1;
-        transition:
-          opacity 0.35s ease,
-          transform 0.35s ease;
-      }
-
-      .hint-bar.is-hidden {
-        opacity: 0;
-        transform: translateY(10px);
-        pointer-events: none;
+        gap: 14px;
+        padding: 8px 12px;
       }
 
       .hint-label {
-        font-size: 13px;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--muted);
-        cursor: pointer;
-        user-select: none;
-        transition:
-          color 0.3s ease,
-          transform 0.3s ease;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+      }
+    }
+
+    .hint-line {
+      position: absolute;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      width: 54px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(17, 17, 17, 0.3);
+    }
+
+    /* Swipe hint triangle on the right edge (2x bigger) */
+    .swipe-hint {
+      position: fixed;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-top: 24px solid transparent;
+      border-bottom: 24px solid transparent;
+      border-left: 36px solid rgba(17, 17, 17, 0.12);
+      border-radius: 3px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      z-index: 30;
+    }
+
+    .swipe-hint.is-visible {
+      opacity: 0.95;
+      animation: swipe-bounce 900ms ease-in-out infinite;
+    }
+
+    /* Text-view downward hint (2x bigger, vertical movement) */
+    .text-hint {
+      position: fixed;
+      left: 50%;
+      bottom: 18%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 24px solid transparent;
+      border-right: 24px solid transparent;
+      border-top: 36px solid rgba(17, 17, 17, 0.12);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      z-index: 30;
+    }
+
+    .text-hint.is-visible {
+      opacity: 0.95;
+      animation: text-bounce 900ms ease-in-out infinite;
+    }
+
+    @keyframes swipe-bounce {
+      0% {
+        transform: translateY(-50%) translateX(0);
       }
 
-      .hint-label.active {
-        color: var(--ink);
-        transform: scale(1.06);
+      50% {
+        transform: translateY(-50%) translateX(-14px);
       }
 
-      .hint-label.is-hidden {
-        display: none;
+      100% {
+        transform: translateY(-50%) translateX(0);
+      }
+    }
+
+    @keyframes text-bounce {
+      0% {
+        transform: translateX(-50%) translateY(0);
       }
 
-      @media (max-width: 380px) {
-        .hint-bar {
-          gap: 14px;
-          padding: 8px 12px;
-        }
-
-        .hint-label {
-          font-size: 12px;
-          letter-spacing: 0.08em;
-        }
+      50% {
+        transform: translateX(-50%) translateY(-18px);
       }
 
-      .hint-line {
-        position: absolute;
-        left: 50%;
-        bottom: 18px;
-        transform: translateX(-50%);
-        width: 54px;
-        height: 4px;
-        border-radius: 999px;
-        background: rgba(17, 17, 17, 0.3);
+      100% {
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    .empty-state {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.7);
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    @media (min-width: 900px) {
+      body {
+        overflow: auto;
       }
 
-      /* Swipe hint triangle on the right edge (2x bigger) */
-      .swipe-hint {
-        position: fixed;
-        right: 18px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 0;
-        height: 0;
-        border-top: 24px solid transparent;
-        border-bottom: 24px solid transparent;
-        border-left: 36px solid rgba(17, 17, 17, 0.12);
-        border-radius: 3px;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.18s ease, transform 0.18s ease;
-        z-index: 30;
+      .rail {
+        padding: 40px 120px 140px;
+        width: 300vw;
       }
 
-      .swipe-hint.is-visible {
-        opacity: 0.95;
-        animation: swipe-bounce 900ms ease-in-out infinite;
-      }
-
-      /* Text-view downward hint (2x bigger, vertical movement) */
-      .text-hint {
-        position: fixed;
-        left: 50%;
-        bottom: 18%;
-        transform: translateX(-50%);
-        width: 0;
-        height: 0;
-        border-left: 24px solid transparent;
-        border-right: 24px solid transparent;
-        border-top: 36px solid rgba(17, 17, 17, 0.12);
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.18s ease, transform 0.18s ease;
-        z-index: 30;
-      }
-
-      .text-hint.is-visible {
-        opacity: 0.95;
-        animation: text-bounce 900ms ease-in-out infinite;
-      }
-
-      @keyframes swipe-bounce {
-        0% {
-          transform: translateY(-50%) translateX(0);
-        }
-        50% {
-          transform: translateY(-50%) translateX(-14px);
-        }
-        100% {
-          transform: translateY(-50%) translateX(0);
-        }
-      }
-
-      @keyframes text-bounce {
-        0% {
-          transform: translateX(-50%) translateY(0);
-        }
-        50% {
-          transform: translateX(-50%) translateY(-18px);
-        }
-        100% {
-          transform: translateX(-50%) translateY(0);
-        }
-      }
-
-      .empty-state {
-        flex: 1;
-        display: flex;
+      .trip-card {
+        flex-direction: row;
+        justify-content: space-between;
         align-items: center;
-        justify-content: center;
-        border-radius: 24px;
-        background: rgba(255, 255, 255, 0.7);
-        color: var(--muted);
-        font-size: 15px;
       }
+    }
+  </style>
+</head>
 
-      @media (min-width: 900px) {
-        body {
-          overflow: auto;
-        }
-
-        .rail {
-          padding: 40px 120px 140px;
-          width: 300vw;
-        }
-
-        .trip-card {
-          flex-direction: row;
-          justify-content: space-between;
-          align-items: center;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="app">
-      <div class="rail" id="rail">
-        <section class="panel trips" data-panel="trips">
-          <div class="header">
-            <div class="subtitle">On a Whim</div>
-            <div class="title">Na rympal</div>
-          </div>
-          <ul class="trip-list" id="tripList"></ul>
-          <button class="trip-card about-card" type="button" id="aboutCard">
-            <div class="trip-name">About</div>
-            <div class="trip-route">why I keep riding</div>
-          </button>
-        </section>
-        <section class="panel map" data-panel="map">
-          <div class="map-meta">
-            <div class="map-title" id="mapTitle">Pick a trip</div>
-            <div class="map-route" id="mapRoute">Swipe left when ready</div>
-          </div>
-          <div class="map-frame" id="mapFrame">
-            <img id="mapImage" src="" alt="" hidden />
-          </div>
-        </section>
-        <section class="panel gallery" data-panel="gallery">
-          <div class="map-meta">
-            <div class="map-title" id="galleryTitle">Text</div>
-            <div class="map-route" id="galleryRoute">
-              Swipe right for the map
-            </div>
-          </div>
-          <div class="gallery-scroll" id="galleryScroll"></div>
-        </section>
-      </div>
-      <section class="about-overlay" id="aboutPanel">
-        <div class="map-meta">
-          <div class="map-title">About</div>
-          <div class="map-route">Swipe right for trips</div>
+<body>
+  <div class="app">
+    <div class="rail" id="rail">
+      <section class="panel trips" data-panel="trips">
+        <div class="header">
+          <div class="subtitle">On a Whim</div>
+          <div class="title">Na rympal</div>
         </div>
-        <div class="about-body">
-          I take these trips to slow down and listen to places that are easy to
-          pass by. The routes are modest, the maps are simple, but the time
-          spent moving through them is where the story lives.
+        <ul class="trip-list" id="tripList"></ul>
+        <button class="trip-card about-card" type="button" id="aboutCard">
+          <div class="trip-name">About</div>
+          <div class="trip-route">why I keep riding</div>
+        </button>
+      </section>
+      <section class="panel map" data-panel="map">
+        <div class="map-meta">
+          <div class="map-title" id="mapTitle">Pick a trip</div>
+          <div class="map-route" id="mapRoute">Swipe left when ready</div>
+        </div>
+        <div class="map-frame" id="mapFrame">
+          <img id="mapImage" src="" alt="" hidden />
         </div>
       </section>
-      <div class="hint-line"></div>
-      <div id="swipeHint" class="swipe-hint" aria-hidden="true"></div>
-      <div id="textHint" class="text-hint" aria-hidden="true"></div>
-      <div class="hint-bar" id="hintBar">
-        <div class="hint-label" data-view="trips">All trips</div>
-        <div class="hint-label" data-view="about">About</div>
-        <div class="hint-label" data-view="map">Map</div>
-        <div class="hint-label" data-view="gallery">Text</div>
-        
-      </div>
+      <section class="panel gallery" data-panel="gallery">
+        <div class="map-meta">
+          <div class="map-title" id="galleryTitle">Text</div>
+          <div class="map-route" id="galleryRoute">
+            Swipe right for the map
+          </div>
+        </div>
+        <div class="gallery-scroll" id="galleryScroll"></div>
+      </section>
     </div>
-    <script src="../assets/js/navigation.js"></script>
-  </body>
+    <section class="about-overlay" id="aboutPanel">
+      <div class="map-meta">
+        <div class="map-title">About</div>
+        <div class="map-route">Swipe right for trips</div>
+      </div>
+      <div class="about-body">
+        I take these trips to slow down and listen to places that are easy to
+        pass by. The routes are modest, the maps are simple, but the time
+        spent moving through them is where the story lives.
+      </div>
+    </section>
+    <div class="hint-line"></div>
+    <div id="swipeHint" class="swipe-hint" aria-hidden="true"></div>
+    <div id="textHint" class="text-hint" aria-hidden="true"></div>
+    <div class="hint-bar" id="hintBar">
+      <div class="hint-label" data-view="trips">All trips</div>
+      <div class="hint-label" data-view="about">About</div>
+      <div class="hint-label" data-view="map">Map</div>
+      <div class="hint-label" data-view="gallery">Text</div>
+
+    </div>
+  </div>
+  <script src="../assets/js/navigation.js"></script>
+</body>
+
 </html>
