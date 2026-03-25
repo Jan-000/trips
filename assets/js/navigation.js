@@ -152,6 +152,10 @@ const state = {
   touchStartY: 0,
   touchStartOffset: 0,
   touchLock: null,
+  fullscreenIndex: -1,
+  fullscreenTouchStartX: 0,
+  fullscreenTouchStartY: 0,
+  suppressFullscreenClickClose: false,
 };
 
 const rail = document.getElementById("rail");
@@ -167,6 +171,48 @@ const hintLabels = Array.from(document.querySelectorAll(".hint-label"));
 const aboutPanel = document.getElementById("aboutPanel");
 const swipeHint = document.getElementById("swipeHint");
 const textHint = document.getElementById("textHint");
+const fullscreenViewer = document.getElementById("fullscreenViewer");
+const fullscreenImage = document.getElementById("fullscreenImage");
+
+function openFullscreenImage(src, alt = "") {
+  if (!fullscreenViewer || !fullscreenImage || !src) return;
+  fullscreenImage.src = src;
+  fullscreenImage.alt = alt;
+  fullscreenViewer.classList.add("is-visible");
+  fullscreenViewer.setAttribute("aria-hidden", "false");
+}
+
+function closeFullscreenImage() {
+  if (!fullscreenViewer || !fullscreenImage) return;
+  fullscreenViewer.classList.remove("is-visible");
+  fullscreenViewer.setAttribute("aria-hidden", "true");
+  fullscreenImage.src = "";
+  fullscreenImage.alt = "";
+  state.fullscreenIndex = -1;
+}
+
+function isFullscreenOpen() {
+  return Boolean(fullscreenViewer?.classList.contains("is-visible"));
+}
+
+function showFullscreenByIndex(index) {
+  if (!state.activeTrip?.gallery?.length) return;
+  const clampedIndex = Math.max(
+    0,
+    Math.min(state.activeTrip.gallery.length - 1, index),
+  );
+  const item = state.activeTrip.gallery[clampedIndex];
+  if (!item) return;
+  state.fullscreenIndex = clampedIndex;
+  openFullscreenImage(item.src, item.caption || "");
+}
+
+function stepFullscreen(delta) {
+  if (!isFullscreenOpen() || !state.activeTrip?.gallery?.length) return;
+  const nextIndex = state.fullscreenIndex + delta;
+  if (nextIndex < 0 || nextIndex >= state.activeTrip.gallery.length) return;
+  showFullscreenByIndex(nextIndex);
+}
 
 const viewOrder = ["trips", "map", "gallery"];
 
@@ -261,6 +307,10 @@ function renderGallery(items) {
             <img src="${item.src}" alt="${item.caption}" />
             <figcaption class="gallery-caption">${item.caption}</figcaption>
         `;
+    const image = figure.querySelector("img");
+    if (image) {
+      image.dataset.index = String(galleryScroll.children.length);
+    }
     galleryScroll.appendChild(figure);
   });
   galleryScroll.scrollTop = 0;
@@ -477,6 +527,20 @@ function onTouchCancel() {
 }
 
 function onKeyDown(event) {
+  if (isFullscreenOpen()) {
+    if (event.key === "ArrowLeft") {
+      stepFullscreen(-1);
+      return;
+    }
+    if (event.key === "ArrowRight") {
+      stepFullscreen(1);
+      return;
+    }
+  }
+  if (event.key === "Escape") {
+    closeFullscreenImage();
+    return;
+  }
   if (event.key === "ArrowLeft") {
     setView(state.viewIndex - 1, true);
   }
@@ -554,6 +618,60 @@ document.addEventListener("DOMContentLoaded", () => {
     { passive: true },
   );
 
+  galleryScroll?.addEventListener("click", (event) => {
+    const image = event.target.closest("img");
+    if (!image || !galleryScroll.contains(image)) return;
+    const index = Number.parseInt(image.dataset.index || "", 10);
+    if (Number.isNaN(index)) {
+      openFullscreenImage(image.currentSrc || image.src, image.alt || "");
+      return;
+    }
+    showFullscreenByIndex(index);
+  });
+
+  fullscreenViewer?.addEventListener("click", () => {
+    if (state.suppressFullscreenClickClose) {
+      state.suppressFullscreenClickClose = false;
+      return;
+    }
+    closeFullscreenImage();
+  });
+
+  fullscreenViewer?.addEventListener(
+    "touchstart",
+    (event) => {
+      const touch = event.touches[0];
+      if (!touch) return;
+      state.fullscreenTouchStartX = touch.clientX;
+      state.fullscreenTouchStartY = touch.clientY;
+      state.suppressFullscreenClickClose = false;
+    },
+    { passive: true },
+  );
+
+  fullscreenViewer?.addEventListener(
+    "touchend",
+    (event) => {
+      const touch = event.changedTouches[0];
+      if (!touch) return;
+      const deltaX = touch.clientX - state.fullscreenTouchStartX;
+      const deltaY = touch.clientY - state.fullscreenTouchStartY;
+      const mostlyHorizontal = Math.abs(deltaX) > Math.abs(deltaY) * 1.1;
+      const threshold = 40;
+      if (!mostlyHorizontal || Math.abs(deltaX) < threshold) {
+        return;
+      }
+
+      state.suppressFullscreenClickClose = true;
+      if (deltaX < 0) {
+        stepFullscreen(1);
+      } else {
+        stepFullscreen(-1);
+      }
+    },
+    { passive: true },
+  );
+
   hintBar.addEventListener("click", onHintClick);
   window.addEventListener("keydown", onKeyDown);
   window.addEventListener("resize", onResize);
@@ -593,5 +711,13 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     },
     { passive: true },
+  );
+
+  fullscreenViewer?.addEventListener(
+    "touchmove",
+    (event) => {
+      event.preventDefault();
+    },
+    { passive: false },
   );
 });

@@ -225,6 +225,33 @@
       max-width: none;
       flex: 1;
       align-self: center;
+      cursor: zoom-in;
+    }
+
+    .fullscreen-viewer {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 60;
+    }
+
+    .fullscreen-viewer.is-visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .fullscreen-viewer img {
+      width: 100vw;
+      height: 100vh;
+      object-fit: contain;
+      user-select: none;
+      -webkit-user-drag: none;
     }
 
     .gallery-caption {
@@ -457,6 +484,9 @@
     <div class="hint-line"></div>
     <div id="swipeHint" class="swipe-hint" aria-hidden="true"></div>
     <div id="textHint" class="text-hint" aria-hidden="true"></div>
+    <div class="fullscreen-viewer" id="fullscreenViewer" aria-hidden="true">
+      <img id="fullscreenImage" src="" alt="" />
+    </div>
     <div class="hint-bar" id="hintBar">
       <div class="hint-label" data-view="trips">All trips</div>
       <div class="hint-label" data-view="about">About</div>
