@@ -145,6 +145,8 @@ const state = {
   aboutOpen: false,
   hintFadeContext: null,
   hintFadeTimer: null,
+  hintBarCanHide: true,
+  hintBarHideTimer: null,
   swipeHintTimer: null,
   textHintTimer: null,
   touchActive: false,
@@ -225,6 +227,14 @@ function clearHintFadeTimer() {
   state.hintFadeTimer = null;
 }
 
+function clearHintBarHideTimer() {
+  if (!state.hintBarHideTimer) {
+    return;
+  }
+  clearTimeout(state.hintBarHideTimer);
+  state.hintBarHideTimer = null;
+}
+
 function showNoTripState() {
   mapTitle.textContent = "Pick a trip";
   mapRoute.textContent = "Swipe left when ready";
@@ -241,6 +251,8 @@ function setAboutPanelOpen(isOpen, hintFadeContext = null) {
   state.hintFadeContext = hintFadeContext;
   if (isOpen) {
     clearHintFadeTimer();
+    clearHintBarHideTimer();
+    state.hintBarCanHide = true;
   }
   aboutPanel?.classList.toggle("is-visible", isOpen);
   updateHint(true);
@@ -352,6 +364,16 @@ function setView(index, animate) {
 
   if (clamped === 0 && previousIndex !== 0 && !state.aboutOpen) {
     state.hintFadeContext = "trip";
+    state.hintBarCanHide = false;
+    clearHintBarHideTimer();
+    state.hintBarHideTimer = window.setTimeout(() => {
+      state.hintBarCanHide = true;
+      state.hintBarHideTimer = null;
+      updateHint();
+    }, 540);
+  } else if (clamped !== 0) {
+    state.hintBarCanHide = true;
+    clearHintBarHideTimer();
   }
 
   rail.style.transition = animate
@@ -422,7 +444,8 @@ function updateHint(animate = true) {
     }
   });
 
-  const isHidingOnTrips = state.viewIndex === 0 && !state.aboutOpen;
+  const isHidingOnTrips =
+    state.viewIndex === 0 && !state.aboutOpen && state.hintBarCanHide;
   hintBar?.classList.toggle("is-hidden", isHidingOnTrips);
 
   const showAboutOnly = state.aboutOpen;
