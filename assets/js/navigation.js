@@ -167,6 +167,7 @@ const galleryScroll = document.getElementById("galleryScroll");
 const galleryTitle = document.getElementById("galleryTitle");
 const galleryRoute = document.getElementById("galleryRoute");
 const hintBar = document.getElementById("hintBar");
+const hintTrack = document.getElementById("hintTrack");
 const hintLabels = Array.from(document.querySelectorAll(".hint-label"));
 const aboutPanel = document.getElementById("aboutPanel");
 const swipeHint = document.getElementById("swipeHint");
@@ -242,7 +243,7 @@ function setAboutPanelOpen(isOpen, hintFadeContext = null) {
     clearHintFadeTimer();
   }
   aboutPanel?.classList.toggle("is-visible", isOpen);
-  updateHint();
+  updateHint(true);
 }
 
 function renderTrips() {
@@ -357,16 +358,72 @@ function setView(index, animate) {
     ? "transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)"
     : "none";
   rail.style.transform = `translateX(${-clamped * 100}vw)`;
-  updateHint();
+  updateHint(animate);
 }
 
-function updateHint() {
+function updateHintTrackInsets() {
+  const visibleLabels = hintLabels.filter(
+    (label) => !label.classList.contains("is-hidden"),
+  );
+
+  if (!hintBar || !hintTrack || !visibleLabels.length) {
+    return false;
+  }
+
+  const firstLabel = visibleLabels[0];
+  const lastLabel = visibleLabels[visibleLabels.length - 1];
+  const halfBarWidth = hintBar.clientWidth / 2;
+  const leftInset = Math.max(0, halfBarWidth - firstLabel.offsetWidth / 2);
+  const rightInset = Math.max(0, halfBarWidth - lastLabel.offsetWidth / 2);
+  hintTrack.style.paddingLeft = `${leftInset}px`;
+  hintTrack.style.paddingRight = `${rightInset}px`;
+  return true;
+}
+
+function getHintOffsetForView(view) {
+  if (!updateHintTrackInsets()) {
+    return null;
+  }
+
+  const label = hintLabels.find(
+    (item) => item.dataset.view === view && !item.classList.contains("is-hidden"),
+  );
+  if (!label || !hintBar) {
+    return null;
+  }
+
+  return hintBar.clientWidth / 2 - (label.offsetLeft + label.offsetWidth / 2);
+}
+
+function setHintTrackOffset(offset, animate = true) {
+  if (!hintTrack || offset === null) {
+    return;
+  }
+
+  if (!animate) {
+    hintTrack.style.transition = "none";
+  }
+  hintTrack.style.transform = `translateX(${offset}px)`;
+  if (!animate) {
+    hintTrack.offsetWidth;
+    hintTrack.style.transition = "";
+  }
+}
+
+function updateHint(animate = true) {
   const currentView = state.aboutOpen ? "about" : viewOrder[state.viewIndex];
+  let activeLabel = null;
+
   hintLabels.forEach((label) => {
-    label.classList.toggle("active", label.dataset.view === currentView);
+    const isActive = label.dataset.view === currentView;
+    label.classList.toggle("active", isActive);
+    if (isActive) {
+      activeLabel = label;
+    }
   });
+
   const isHidingOnTrips = state.viewIndex === 0 && !state.aboutOpen;
-  hintBar.classList.toggle("is-hidden", isHidingOnTrips);
+  hintBar?.classList.toggle("is-hidden", isHidingOnTrips);
 
   const showAboutOnly = state.aboutOpen;
   const showAboutFadeSet =
@@ -397,6 +454,12 @@ function updateHint() {
       updateHint();
     }, 360);
   }
+
+  if (!activeLabel) {
+    return;
+  }
+
+  setHintTrackOffset(getHintOffsetForView(activeLabel.dataset.view), animate);
 }
 
 function clearSwipeHintTimer() {
@@ -482,6 +545,19 @@ function onTouchMove(event) {
   let nextOffset = state.touchStartOffset + deltaX;
   nextOffset = Math.max(minOffset - 120, Math.min(maxOffset + 120, nextOffset));
   rail.style.transform = `translateX(${nextOffset}px)`;
+
+  const progress = Math.max(0, Math.min(viewOrder.length - 1, -nextOffset / window.innerWidth));
+  const leftIndex = Math.floor(progress);
+  const rightIndex = Math.ceil(progress);
+  const leftOffset = getHintOffsetForView(viewOrder[leftIndex]);
+  const rightOffset = getHintOffsetForView(viewOrder[rightIndex]);
+  if (leftOffset === null || rightOffset === null) {
+    return;
+  }
+
+  const interpolation = progress - leftIndex;
+  const selectorOffset = leftOffset + (rightOffset - leftOffset) * interpolation;
+  setHintTrackOffset(selectorOffset, false);
 }
 
 function onTouchEnd(event) {
@@ -564,6 +640,9 @@ function onHintClick(event) {
   }
   const index = viewOrder.indexOf(view);
   if (index === -1) return;
+  if (state.aboutOpen) {
+    setAboutPanelOpen(false);
+  }
   setView(index, true);
 }
 
