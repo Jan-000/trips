@@ -323,7 +323,7 @@ function renderGallery(items) {
     const figure = document.createElement("figure");
     figure.className = "gallery-item";
     figure.innerHTML = `
-            <img src="${item.src}" alt="${item.caption}" />
+            <div class="gallery-photo"><img src="${item.src}" alt="${item.caption}" /></div>
             <figcaption class="gallery-caption">${item.caption}</figcaption>
         `;
     const image = figure.querySelector("img");

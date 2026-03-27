@@ -17,7 +17,7 @@
       --leaf: #7aa37a;
       --hint-slot: 74px;
       --hint-padding-x: 10px;
-      --hint-bottom-offset: 66px;
+      --hint-bottom-offset: 1.5rem;
       --hint-height: 56px;
       --hint-image-gap: 12px;
       --hint-reserved-space: calc(var(--hint-bottom-offset) + var(--hint-height) + var(--hint-image-gap) + env(safe-area-inset-bottom, 0px));
@@ -64,7 +64,7 @@
     .panel {
       width: 100vw;
       height: 100vh;
-      padding: 24px 2rem 24px;
+      padding: 24px 2rem 5rem;
       display: flex;
       flex-direction: column;
       gap: 20px;
@@ -202,7 +202,6 @@
     }
 
     .map-frame img {
-      width: 100%;
       height: 100%;
       object-fit: contain;
     }
@@ -234,18 +233,25 @@
 
     .gallery-item {
       scroll-snap-align: start;
-      height: 65vh; 
-      border-radius: 24px;
+      height: 66vh;
       overflow: hidden;
-      background: rgba(255, 255, 255, 0.85);
       display: flex;
       flex-direction: column;
       margin-left: .5rem;
       margin-right: .5rem
     }
 
+    .gallery-photo {
+      border-radius: 10px;
+      overflow: hidden;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     .gallery-item img {
-      height: 100%;
+      height: stretch;
       max-width: none;
       flex: 1;
       align-self: center;
@@ -273,7 +279,7 @@
 
     .fullscreen-viewer img {
       max-width: 100vw;
-      max-height: calc(100dvh - var(--hint-reserved-space));
+      max-height: calc(100vh - var(--hint-reserved-space));
       width: auto;
       height: auto;
       object-fit: contain;
@@ -285,7 +291,6 @@
       padding: 14px 16px 18px;
       font-size: 14px;
       color: var(--muted);
-      background: rgba(255, 255, 255, 0.9);
     }
 
     .hint-bar {
@@ -420,7 +425,7 @@
       }
     }
 
-    
+
     /* Swipe hint triangle on the right edge (2x bigger) */
     .swipe-hint {
       position: fixed;
