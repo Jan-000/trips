@@ -151,6 +151,7 @@ const state = {
   swipeBarNudgeTimer: null,
   textLabelSpinDelayTimer: null,
   textLabelSpinTimer: null,
+  storyArrowDelayTimer: null,
   lastHintView: null,
   touchActive: false,
   touchStartX: 0,
@@ -162,6 +163,10 @@ const state = {
   fullscreenTouchStartY: 0,
   suppressFullscreenClickClose: false,
 };
+
+const STORY_LABEL_SPIN_DELAY_MS = 500;
+const STORY_LABEL_SPIN_DURATION_MS = 1500;
+const STORY_ARROW_DELAY_AFTER_SPIN_MS = 1000;
 
 const rail = document.getElementById("rail");
 const tripList = document.getElementById("tripList");
@@ -511,8 +516,10 @@ function updateHint(animate = true) {
 
   if (currentView === "gallery" && previousHintView !== "gallery") {
     spinTextHintLabel();
+    triggerStoryArrowNudge();
   } else if (currentView !== "gallery" && textHintLabel) {
     clearTextLabelSpinTimer();
+    clearStoryArrowTimers();
     textHintLabel.classList.remove("is-spinning");
   }
   state.lastHintView = currentView;
@@ -560,6 +567,35 @@ function clearTextLabelSpinTimer() {
   state.textLabelSpinTimer = null;
 }
 
+function clearStoryArrowTimers() {
+  if (state.storyArrowDelayTimer) {
+    clearTimeout(state.storyArrowDelayTimer);
+    state.storyArrowDelayTimer = null;
+  }
+  textHintLabel?.classList.remove("is-arrow-nudging");
+}
+
+function triggerStoryArrowNudge() {
+  if (!textHintLabel) return;
+  clearStoryArrowTimers();
+  textHintLabel.classList.remove("is-arrow-nudging");
+  const delayMs =
+    STORY_LABEL_SPIN_DELAY_MS +
+    STORY_LABEL_SPIN_DURATION_MS +
+    STORY_ARROW_DELAY_AFTER_SPIN_MS;
+  state.storyArrowDelayTimer = window.setTimeout(() => {
+    state.storyArrowDelayTimer = null;
+    // Force reflow so the animation can replay on repeated entries.
+    textHintLabel.offsetWidth;
+    textHintLabel.classList.add("is-arrow-nudging");
+  }, delayMs);
+}
+
+function onStoryArrowAnimationEnd(event) {
+  if (event.animationName !== "moveFade") return;
+  textHintLabel?.classList.remove("is-arrow-nudging");
+}
+
 function spinTextHintLabel() {
   if (!textHintLabel) return;
   clearTextLabelSpinTimer();
@@ -572,8 +608,8 @@ function spinTextHintLabel() {
     state.textLabelSpinTimer = window.setTimeout(() => {
       textHintLabel.classList.remove("is-spinning");
       state.textLabelSpinTimer = null;
-    }, 1500);
-  }, 500);
+    }, STORY_LABEL_SPIN_DURATION_MS);
+  }, STORY_LABEL_SPIN_DELAY_MS);
 }
 
 function onTouchStart(event) {
@@ -740,6 +776,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   state.lastNonTripsIndex = initial.viewIndex === 0 ? null : initial.viewIndex;
   setView(initial.viewIndex, false);
+
+  textHintLabel?.addEventListener("animationend", onStoryArrowAnimationEnd);
 
   rail.addEventListener("touchstart", onTouchStart, { passive: true });
   rail.addEventListener("touchmove", onTouchMove, { passive: false });

@@ -361,6 +361,39 @@
       position: relative;
     }
 
+    .hint-label.hint-label-slot {
+      overflow: visible;
+    }
+
+    .hint-label-slot .slot-indicator {
+      position: absolute;
+      top: 50%;
+      left: calc(100% + 1rem);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 9px;
+      height: 20px;
+      --arrow-travel: 28px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.26s ease-out;
+      will-change: transform, opacity;
+    }
+
+    .hint-label-slot .slot-indicator::before {
+      content: "\2193";
+      font-size: 12px;
+      line-height: 1;
+      font-weight: 300;
+      color: currentColor;
+    }
+
+    .hint-label-slot.is-arrow-nudging .slot-indicator {
+      opacity: 0;
+      animation: moveFade 1000ms linear 0s 5;
+    }
+
     .hint-label-slot .slot-viewport {
       position: relative;
       display: block;
@@ -478,8 +511,39 @@
       }
     }
 
+    @keyframes moveFade {
+      0% {
+        transform: translateY(calc(-50% - var(--arrow-travel) / 2));
+        opacity: 0;
+      }
+
+      30% {
+
+        opacity: .05;
+      }
+
+      50% {
+        transform: translateY(-50%);
+        opacity: 1;
+      }
+
+      70% {
+
+        opacity: 0.05;
+      }
+
+      100% {
+        transform: translateY(calc(-50% + var(--arrow-travel) / 2));
+        opacity: 0;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .hint-track.is-swipe-nudging .hint-label {
+        animation: none;
+      }
+
+      .hint-label-slot.is-arrow-nudging .slot-indicator {
         animation: none;
       }
     }
@@ -589,6 +653,7 @@
                 <span class="slot-word">Story</span>
               </span>
             </span>
+            <span class="slot-indicator" aria-hidden="true"></span>
           </div>
         </div>
       </div>
