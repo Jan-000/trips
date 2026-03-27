@@ -134,12 +134,11 @@
     .about-card {
       text-align: left;
       border: 0;
-    }
-
-    .about-card .trip-route {
-      font-size: 12px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
+      width: 100%;
+      appearance: none;
+      -webkit-appearance: none;
+      font: inherit;
+      color: inherit;
     }
 
     .about-body {
@@ -171,6 +170,24 @@
     .about-overlay.is-visible {
       transform: translateX(0);
       pointer-events: auto;
+    }
+
+    .about-overlay .map-meta {
+      gap: 4px;
+    }
+
+    .about-overlay .map-title {
+      font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .about-overlay .map-route {
+      font-size: 14px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
     }
 
     .map-frame {
@@ -600,8 +617,8 @@
     </div>
     <section class="about-overlay" id="aboutPanel">
       <div class="map-meta">
-        <div class="map-title">About</div>
         <div class="map-route">Swipe right for trips</div>
+        <div class="map-title">About</div>
       </div>
       <div class="about-body">
         I take these trips to slow down and listen to places that are easy to
