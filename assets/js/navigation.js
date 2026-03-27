@@ -75,19 +75,19 @@ const trips = [
     gallery: [
       {
         src: "../assets/images/oderbruch/able/20250209_085846.jpg",
-        caption: "Historic railway through the marshlands.",
+        caption: "That's a long stretch altogether, done it in 3 stages.",
       },
       {
         src: "../assets/images/oderbruch/able/20250209_085901.png",
-        caption: "Rolling countryside and forgotten tracks.",
+        caption: "V-123",
       },
       {
         src: "../assets/images/oderbruch/able/20250209_114548.jpg",
-        caption: "Where time moves slowly.",
+        caption: "Mild fatigue + isolation in remoteness = feels like fjord",
       },
       {
         src: "../assets/images/oderbruch/able/20250209_114750.jpg",
-        caption: "Journey through the Oderbruch.",
+        caption: "Memorable. Muhlensee.",
       },
     ],
   },
