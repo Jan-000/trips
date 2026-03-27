@@ -302,6 +302,10 @@
       will-change: transform;
     }
 
+    .hint-track.is-swipe-nudging .hint-label {
+      animation: hint-word-swipe-nudge 520ms cubic-bezier(0.2, 0.88, 0.3, 1);
+    }
+
     .hint-label {
       flex: 0 0 auto;
       width: var(--hint-slot);
@@ -479,6 +483,54 @@
 
       100% {
         transform: translateY(-16.8em);
+      }
+    }
+
+    @keyframes hint-word-swipe-nudge {
+      0% {
+        transform: translateX(0);
+      }
+
+      16% {
+        transform: translateX(-7px);
+      }
+
+      30% {
+        transform: translateX(4px);
+      }
+
+      44% {
+        transform: translateX(-2px);
+      }
+
+      58% {
+        transform: translateX(1px);
+      }
+
+      72% {
+        transform: translateX(-0.7px);
+      }
+
+      84% {
+        transform: translateX(0.45px);
+      }
+
+      93% {
+        transform: translateX(-0.25px);
+      }
+
+      98% {
+        transform: translateX(0.12px);
+      }
+
+      100% {
+        transform: translateX(0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hint-track.is-swipe-nudging .hint-label {
+        animation: none;
       }
     }
 

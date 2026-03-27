@@ -149,6 +149,8 @@ const state = {
   hintBarHideTimer: null,
   swipeHintTimer: null,
   textHintTimer: null,
+  swipeBarNudgeDelayTimer: null,
+  swipeBarNudgeTimer: null,
   textLabelSpinDelayTimer: null,
   textLabelSpinTimer: null,
   lastHintView: null,
@@ -343,6 +345,10 @@ function setView(index, animate) {
     clearHintFadeTimer();
   }
 
+  if (clamped === 1 && previousIndex !== 1) {
+    triggerSwipeBarNudge();
+  }
+
   // show a short swipe hint when opening the map view for a selected trip
   if (clamped === 1 && previousIndex !== 1 && state.activeTrip) {
     showSwipeHint();
@@ -351,6 +357,8 @@ function setView(index, animate) {
   // hide swipe hint whenever we navigate away
   if (clamped !== 1) {
     hideSwipeHint();
+    clearSwipeBarNudgeTimers();
+    hintTrack?.classList.remove("is-swipe-nudging");
   }
 
   // show a short downward hint when opening the text/gallery view
@@ -565,6 +573,32 @@ function clearTextHintTimer() {
   if (!state.textHintTimer) return;
   clearTimeout(state.textHintTimer);
   state.textHintTimer = null;
+}
+
+function clearSwipeBarNudgeTimers() {
+  if (state.swipeBarNudgeDelayTimer) {
+    clearTimeout(state.swipeBarNudgeDelayTimer);
+    state.swipeBarNudgeDelayTimer = null;
+  }
+  if (!state.swipeBarNudgeTimer) return;
+  clearTimeout(state.swipeBarNudgeTimer);
+  state.swipeBarNudgeTimer = null;
+}
+
+function triggerSwipeBarNudge() {
+  if (!hintTrack) return;
+  clearSwipeBarNudgeTimers();
+  hintTrack.classList.remove("is-swipe-nudging");
+  state.swipeBarNudgeDelayTimer = window.setTimeout(() => {
+    state.swipeBarNudgeDelayTimer = null;
+    // Force reflow to replay the keyframe sequence on repeated map entries.
+    hintTrack.offsetWidth;
+    hintTrack.classList.add("is-swipe-nudging");
+    state.swipeBarNudgeTimer = window.setTimeout(() => {
+      hintTrack.classList.remove("is-swipe-nudging");
+      state.swipeBarNudgeTimer = null;
+    }, 560);
+  }, 800);
 }
 
 function showTextHint() {
