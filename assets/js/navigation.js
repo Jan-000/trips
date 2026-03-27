@@ -47,19 +47,19 @@ const trips = [
     gallery: [
       {
         src: "../assets/images/boltenhagen/able/20250118_093845.jpg",
-        caption: "Low light, cold water, and quiet roads.",
+        caption: "Combatting black-ice with rollerskates",
       },
       {
         src: "../assets/images/boltenhagen/able/20250118_114016.jpg",
-        caption: "Baltic coastline in the distance.",
+        caption: "Brick architecture ensemble; always pleasing to witness valuable heritage outside of the city.",
       },
       {
         src: "../assets/images/boltenhagen/able/20250118_135411.jpg",
-        caption: "Frozen shores and winter light.",
+        caption: "Nothing beats the late winter water optic quality",
       },
       {
         src: "../assets/images/boltenhagen/able/20250118_135536.jpg",
-        caption: "Journey along the Baltic.",
+        caption: "Klassiker.",
       },
     ],
   },
