@@ -387,6 +387,22 @@ function updateHintTrackInsets() {
   const visibleLabels = hintLabels.filter(
     (label) => !label.classList.contains("is-hidden"),
   );
+  const activeVisibleLabel = visibleLabels.find((label) =>
+    label.classList.contains("active"),
+  );
+
+  hintLabels.forEach((label) => {
+    label.classList.remove("edge-left", "edge-right");
+  });
+
+  if (visibleLabels.length > 1) {
+    visibleLabels[0].classList.add("edge-left");
+    visibleLabels[visibleLabels.length - 1].classList.add("edge-right");
+  }
+
+  if (activeVisibleLabel) {
+    activeVisibleLabel.classList.remove("edge-left", "edge-right");
+  }
 
   if (!hintBar || !hintTrack || !visibleLabels.length) {
     return false;
@@ -469,6 +485,32 @@ function updateHint(animate = true) {
             : isAbout;
     label.classList.toggle("is-hidden", shouldHide);
   });
+
+  const contextualVisible = hintLabels.filter(
+    (label) => !label.classList.contains("is-hidden"),
+  );
+  if (contextualVisible.length > 3) {
+    const activeIndex = contextualVisible.findIndex(
+      (label) => label.dataset.view === currentView,
+    );
+    if (activeIndex !== -1) {
+      let start = Math.max(0, activeIndex - 1);
+      let end = Math.min(contextualVisible.length - 1, activeIndex + 1);
+
+      if (end - start < 2) {
+        if (start === 0) {
+          end = Math.min(contextualVisible.length - 1, 2);
+        } else if (end === contextualVisible.length - 1) {
+          start = Math.max(0, contextualVisible.length - 3);
+        }
+      }
+
+      contextualVisible.forEach((label, index) => {
+        const inWindow = index >= start && index <= end;
+        label.classList.toggle("is-hidden", !inWindow);
+      });
+    }
+  }
 
   if (isHidingOnTrips && state.hintFadeContext && !state.hintFadeTimer) {
     state.hintFadeTimer = window.setTimeout(() => {

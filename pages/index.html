@@ -17,6 +17,8 @@
       --paper: #f6f2ea;
       --glow: #f9d64a;
       --leaf: #7aa37a;
+      --hint-slot: 74px;
+      --hint-padding-x: 10px;
       --shadow: 0 20px 60px rgba(16, 16, 16, 0.18);
     }
 
@@ -267,8 +269,8 @@
       right: 0;
       bottom: 36px;
       margin: 0 auto;
-      width: min(360px, calc(100vw - 28px));
-      padding: 10px 18px;
+      width: min(calc(var(--hint-slot) * 3 + var(--hint-padding-x) * 2), calc(100vw - 28px));
+      padding: 10px var(--hint-padding-x);
       background: rgba(255, 255, 255, 0.9);
       backdrop-filter: blur(12px);
       border-radius: 999px;
@@ -296,7 +298,7 @@
       position: relative;
       display: flex;
       align-items: center;
-      gap: 22px;
+      gap: 0;
       width: max-content;
       transform: translateX(0);
       transition: transform 520ms cubic-bezier(0.22, 1.15, 0.36, 1);
@@ -305,14 +307,30 @@
 
     .hint-label {
       flex: 0 0 auto;
+      width: var(--hint-slot);
+      max-width: var(--hint-slot);
       padding: 0;
       font-size: 13px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
+      text-align: center;
       color: var(--muted);
       cursor: pointer;
       user-select: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: clip;
       transition: font-weight 0.2s ease;
+    }
+
+    .hint-label.edge-left {
+      -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 26%, #000 100%);
+      mask-image: linear-gradient(90deg, transparent 0, #000 26%, #000 100%);
+    }
+
+    .hint-label.edge-right {
+      -webkit-mask-image: linear-gradient(90deg, #000 0, #000 34%, transparent 100%);
+      mask-image: linear-gradient(90deg, #000 0, #000 34%, transparent 100%);
     }
 
     .hint-label.active {
@@ -324,13 +342,13 @@
     }
 
     @media (max-width: 380px) {
-      .hint-bar {
-        gap: 14px;
-        padding: 8px 12px;
+      :root {
+        --hint-slot: 68px;
+        --hint-padding-x: 8px;
       }
 
-      .hint-track {
-        gap: 14px;
+      .hint-bar {
+        padding: 8px var(--hint-padding-x);
       }
 
       .hint-label {
