@@ -17,6 +17,10 @@
       --leaf: #7aa37a;
       --hint-slot: 74px;
       --hint-padding-x: 10px;
+      --hint-bottom-offset: 66px;
+      --hint-height: 56px;
+      --hint-image-gap: 12px;
+      --hint-reserved-space: calc(var(--hint-bottom-offset) + var(--hint-height) + var(--hint-image-gap) + env(safe-area-inset-bottom, 0px));
       --shadow: 0 20px 60px rgba(16, 16, 16, 0.18);
     }
 
@@ -65,6 +69,10 @@
       flex-direction: column;
       gap: 20px;
       overflow-y: auto;
+    }
+
+    .panel.map {
+      padding-bottom: calc(24px + var(--hint-reserved-space));
     }
 
     .header {
@@ -204,12 +212,12 @@
       scroll-snap-type: y mandatory;
       display: grid;
       gap: 16px;
-      padding-bottom: 120px;
+      padding-bottom: max(120px, calc(var(--hint-reserved-space) + 16px));
     }
 
     .gallery-item {
       scroll-snap-align: start;
-      height: 76vh;
+      height: 65vh; 
       border-radius: 24px;
       overflow: hidden;
       background: rgba(255, 255, 255, 0.85);
@@ -230,6 +238,7 @@
     .fullscreen-viewer {
       position: fixed;
       inset: 0;
+      padding-bottom: var(--hint-reserved-space);
       background: #000;
       display: flex;
       align-items: center;
@@ -246,8 +255,10 @@
     }
 
     .fullscreen-viewer img {
-      width: 100vw;
-      height: 100vh;
+      max-width: 100vw;
+      max-height: calc(100dvh - var(--hint-reserved-space));
+      width: auto;
+      height: auto;
       object-fit: contain;
       user-select: none;
       -webkit-user-drag: none;
@@ -264,7 +275,7 @@
       position: fixed;
       left: 0;
       right: 0;
-      bottom: 66px;
+      bottom: var(--hint-bottom-offset);
       margin: 0 auto;
       width: min(calc(var(--hint-slot) * 3 + var(--hint-padding-x) * 2), calc(100vw - 28px));
       padding: 10px var(--hint-padding-x);
@@ -392,17 +403,7 @@
       }
     }
 
-    .hint-line {
-      position: absolute;
-      left: 50%;
-      bottom: 18px;
-      transform: translateX(-50%);
-      width: 54px;
-      height: 4px;
-      border-radius: 999px;
-      background: rgba(17, 17, 17, 0.3);
-    }
-
+    
     /* Swipe hint triangle on the right edge (2x bigger) */
     .swipe-hint {
       position: fixed;
@@ -608,7 +609,7 @@
         spent moving through them is where the story lives.
       </div>
     </section>
-    <div class="hint-line"></div>
+
     <div id="swipeHint" class="swipe-hint" aria-hidden="true"></div>
     <div id="textHint" class="text-hint" aria-hidden="true"></div>
     <div class="fullscreen-viewer" id="fullscreenViewer" aria-hidden="true">
