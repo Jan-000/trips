@@ -147,8 +147,6 @@ const state = {
   hintFadeTimer: null,
   hintBarCanHide: true,
   hintBarHideTimer: null,
-  swipeHintTimer: null,
-  textHintTimer: null,
   swipeBarNudgeDelayTimer: null,
   swipeBarNudgeTimer: null,
   textLabelSpinDelayTimer: null,
@@ -177,8 +175,6 @@ const hintBar = document.getElementById("hintBar");
 const hintTrack = document.getElementById("hintTrack");
 const hintLabels = Array.from(document.querySelectorAll(".hint-label"));
 const aboutPanel = document.getElementById("aboutPanel");
-const swipeHint = document.getElementById("swipeHint");
-const textHint = document.getElementById("textHint");
 const fullscreenViewer = document.getElementById("fullscreenViewer");
 const fullscreenImage = document.getElementById("fullscreenImage");
 const textHintLabel = hintLabels.find((label) => label.dataset.view === "gallery");
@@ -349,29 +345,9 @@ function setView(index, animate) {
     triggerSwipeBarNudge();
   }
 
-  // show a short swipe hint when opening the map view for a selected trip
-  if (clamped === 1 && previousIndex !== 1 && state.activeTrip) {
-    showSwipeHint();
-  }
-
-  // hide swipe hint whenever we navigate away
   if (clamped !== 1) {
-    hideSwipeHint();
     clearSwipeBarNudgeTimers();
     hintTrack?.classList.remove("is-swipe-nudging");
-  }
-
-  // show a short downward hint when opening the text/gallery view
-  if (clamped === 2 && previousIndex !== 2 && state.activeTrip) {
-    // small delay to allow layout/scroll metrics to stabilize
-    window.setTimeout(() => {
-      showTextHint();
-    }, 120);
-  }
-
-  // hide text hint whenever we navigate away
-  if (clamped !== 2) {
-    hideTextHint();
   }
 
   if (clamped === 0 && previousIndex !== 0 && !state.aboutOpen) {
@@ -548,33 +524,6 @@ function updateHint(animate = true) {
   setHintTrackOffset(getHintOffsetForView(activeLabel.dataset.view), animate);
 }
 
-function clearSwipeHintTimer() {
-  if (!state.swipeHintTimer) return;
-  clearTimeout(state.swipeHintTimer);
-  state.swipeHintTimer = null;
-}
-
-function showSwipeHint() {
-  if (!swipeHint) return;
-  clearSwipeHintTimer();
-  swipeHint.classList.add("is-visible");
-  state.swipeHintTimer = window.setTimeout(() => {
-    hideSwipeHint();
-  }, 3000);
-}
-
-function hideSwipeHint() {
-  if (!swipeHint) return;
-  swipeHint.classList.remove("is-visible");
-  clearSwipeHintTimer();
-}
-
-function clearTextHintTimer() {
-  if (!state.textHintTimer) return;
-  clearTimeout(state.textHintTimer);
-  state.textHintTimer = null;
-}
-
 function clearSwipeBarNudgeTimers() {
   if (state.swipeBarNudgeDelayTimer) {
     clearTimeout(state.swipeBarNudgeDelayTimer);
@@ -599,25 +548,6 @@ function triggerSwipeBarNudge() {
       state.swipeBarNudgeTimer = null;
     }, 560);
   }, 800);
-}
-
-function showTextHint() {
-  if (!textHint) return;
-  // only show if the gallery is scrollable
-  try {
-    if (galleryScroll.scrollHeight <= galleryScroll.clientHeight) return;
-  } catch (e) {}
-  clearTextHintTimer();
-  textHint.classList.add("is-visible");
-  state.textHintTimer = window.setTimeout(() => {
-    hideTextHint();
-  }, 3000);
-}
-
-function hideTextHint() {
-  if (!textHint) return;
-  textHint.classList.remove("is-visible");
-  clearTextHintTimer();
 }
 
 function clearTextLabelSpinTimer() {
@@ -815,25 +745,6 @@ document.addEventListener("DOMContentLoaded", () => {
   rail.addEventListener("touchmove", onTouchMove, { passive: false });
   rail.addEventListener("touchend", onTouchEnd, { passive: true });
   rail.addEventListener("touchcancel", onTouchCancel, { passive: true });
-
-  // hide the swipe hint as soon as the user begins interaction
-  rail.addEventListener(
-    "touchstart",
-    () => {
-      hideSwipeHint();
-      hideTextHint();
-    },
-    { passive: true },
-  );
-
-  // hide the text hint if the user scrolls the gallery
-  galleryScroll?.addEventListener(
-    "scroll",
-    () => {
-      hideTextHint();
-    },
-    { passive: true },
-  );
 
   galleryScroll?.addEventListener("click", (event) => {
     const image = event.target.closest("img");
