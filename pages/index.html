@@ -222,6 +222,19 @@
       font-size: 14px;
     }
 
+    .map-credit {
+      min-height: 1.2em;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .map-credit a {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 0.15em;
+    }
+
     .gallery-scroll {
       flex: 1;
       overflow-y: auto;
@@ -600,6 +613,7 @@
         <div class="map-frame" id="mapFrame">
           <img id="mapImage" src="" alt="" hidden />
         </div>
+        <div class="map-credit" id="mapCredit" aria-live="polite"></div>
       </section>
       <section class="panel gallery" data-panel="gallery">
         <div class="map-meta">

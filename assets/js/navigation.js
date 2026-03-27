@@ -68,6 +68,10 @@ const trips = [
     name: "Oderbruchbahn",
     route: "from Wriezen to Letschin",
     map: "../assets/maps/oderbruch.png",
+    mapCredit: {
+      label: "Map credit: bahnstrecken.de",
+      href: "https://www.bahnstrecken.de/"
+    },
     gallery: [
       {
         src: "../assets/images/oderbruch/able/20250209_085846.jpg",
@@ -91,7 +95,7 @@ const trips = [
     id: "partwitzer",
     name: "Partwitzer See",
     route: "around the lake",
-    map: "",
+    map: "../assets/maps/partwitzer.png",
     gallery: [
       {
         src: "../assets/images/partwitzer/able/20260307_055758.jpg",
@@ -173,6 +177,7 @@ const tripList = document.getElementById("tripList");
 const mapTitle = document.getElementById("mapTitle");
 const mapRoute = document.getElementById("mapRoute");
 const mapImage = document.getElementById("mapImage");
+const mapCredit = document.getElementById("mapCredit");
 const galleryScroll = document.getElementById("galleryScroll");
 const galleryTitle = document.getElementById("galleryTitle");
 const galleryRoute = document.getElementById("galleryRoute");
@@ -248,6 +253,9 @@ function showNoTripState() {
   mapImage.hidden = true;
   mapImage.src = "";
   mapImage.alt = "";
+  if (mapCredit) {
+    mapCredit.textContent = "";
+  }
   galleryTitle.textContent = "Story";
   galleryRoute.textContent = "Swipe right for the map";
   galleryScroll.innerHTML = "";
@@ -300,11 +308,21 @@ function setActiveTrip(tripId) {
     mapImage.src = trip.map;
     mapImage.alt = `${trip.name} map`;
     mapImage.hidden = false;
+    if (mapCredit) {
+      if (trip.mapCredit?.href) {
+        mapCredit.innerHTML = `<a href="${trip.mapCredit.href}" target="_blank" rel="noreferrer">${trip.mapCredit.label}</a>`;
+      } else {
+        mapCredit.textContent = trip.mapCredit?.label || "";
+      }
+    }
   } else {
     mapImage.src = "";
     mapImage.alt = "";
     mapImage.hidden = true;
     mapRoute.textContent = `${trip.route} - map coming soon`;
+    if (mapCredit) {
+      mapCredit.textContent = "";
+    }
   }
   galleryTitle.textContent = `${trip.name} text`;
   galleryRoute.textContent = "Swipe right for the map";
