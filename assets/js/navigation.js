@@ -245,7 +245,7 @@ function showNoTripState() {
   mapImage.hidden = true;
   mapImage.src = "";
   mapImage.alt = "";
-  galleryTitle.textContent = "Text";
+  galleryTitle.textContent = "Story";
   galleryRoute.textContent = "Swipe right for the map";
   galleryScroll.innerHTML = "";
 }
