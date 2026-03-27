@@ -149,6 +149,9 @@ const state = {
   hintBarHideTimer: null,
   swipeHintTimer: null,
   textHintTimer: null,
+  textLabelSpinDelayTimer: null,
+  textLabelSpinTimer: null,
+  lastHintView: null,
   touchActive: false,
   touchStartX: 0,
   touchStartY: 0,
@@ -176,6 +179,7 @@ const swipeHint = document.getElementById("swipeHint");
 const textHint = document.getElementById("textHint");
 const fullscreenViewer = document.getElementById("fullscreenViewer");
 const fullscreenImage = document.getElementById("fullscreenImage");
+const textHintLabel = hintLabels.find((label) => label.dataset.view === "gallery");
 
 function openFullscreenImage(src, alt = "") {
   if (!fullscreenViewer || !fullscreenImage || !src) return;
@@ -450,6 +454,7 @@ function setHintTrackOffset(offset, animate = true) {
 
 function updateHint(animate = true) {
   const currentView = state.aboutOpen ? "about" : viewOrder[state.viewIndex];
+  const previousHintView = state.lastHintView;
   let activeLabel = null;
 
   hintLabels.forEach((label) => {
@@ -520,6 +525,14 @@ function updateHint(animate = true) {
     }, 360);
   }
 
+  if (currentView === "gallery" && previousHintView !== "gallery") {
+    spinTextHintLabel();
+  } else if (currentView !== "gallery" && textHintLabel) {
+    clearTextLabelSpinTimer();
+    textHintLabel.classList.remove("is-spinning");
+  }
+  state.lastHintView = currentView;
+
   if (!activeLabel) {
     return;
   }
@@ -571,6 +584,32 @@ function hideTextHint() {
   if (!textHint) return;
   textHint.classList.remove("is-visible");
   clearTextHintTimer();
+}
+
+function clearTextLabelSpinTimer() {
+  if (state.textLabelSpinDelayTimer) {
+    clearTimeout(state.textLabelSpinDelayTimer);
+    state.textLabelSpinDelayTimer = null;
+  }
+  if (!state.textLabelSpinTimer) return;
+  clearTimeout(state.textLabelSpinTimer);
+  state.textLabelSpinTimer = null;
+}
+
+function spinTextHintLabel() {
+  if (!textHintLabel) return;
+  clearTextLabelSpinTimer();
+  textHintLabel.classList.remove("is-spinning");
+  state.textLabelSpinDelayTimer = window.setTimeout(() => {
+    state.textLabelSpinDelayTimer = null;
+    // Force reflow so animation restarts cleanly on repeated entries.
+    textHintLabel.offsetWidth;
+    textHintLabel.classList.add("is-spinning");
+    state.textLabelSpinTimer = window.setTimeout(() => {
+      textHintLabel.classList.remove("is-spinning");
+      state.textLabelSpinTimer = null;
+    }, 1500);
+  }, 500);
 }
 
 function onTouchStart(event) {

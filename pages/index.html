@@ -323,6 +323,40 @@
       transition: font-weight 0.2s ease;
     }
 
+    .hint-label-slot {
+      position: relative;
+    }
+
+    .hint-label-slot .slot-viewport {
+      position: relative;
+      display: block;
+      height: 1.2em;
+      overflow: hidden;
+    }
+
+    .hint-label-slot .slot-reel {
+      display: flex;
+      flex-direction: column;
+      transform: translateY(-4.8em);
+      will-change: transform;
+    }
+
+    .hint-label-slot .slot-word {
+      display: block;
+      height: 1.2em;
+      line-height: 1.2em;
+      text-align: center;
+    }
+
+    .hint-label-slot.is-spinning .slot-viewport {
+      -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 22%, #000 78%, transparent 100%);
+      mask-image: linear-gradient(180deg, transparent 0, #000 22%, #000 78%, transparent 100%);
+    }
+
+    .hint-label-slot.is-spinning .slot-reel {
+      animation: text-slot-spin 1.5s cubic-bezier(0.08, 0.78, 0.24, 1) forwards;
+    }
+
     .hint-label.edge-left {
       -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 26%, #000 100%);
       mask-image: linear-gradient(90deg, transparent 0, #000 26%, #000 100%);
@@ -441,6 +475,15 @@
       }
     }
 
+    @keyframes text-slot-spin {
+      0% {
+        transform: translateY(-4.8em);
+      }
+      100% {
+        transform: translateY(-16.8em);
+      }
+    }
+
     .empty-state {
       flex: 1;
       display: flex;
@@ -527,7 +570,28 @@
           <div class="hint-label" data-view="trips">All trips</div>
           <div class="hint-label" data-view="about">About</div>
           <div class="hint-label" data-view="map">Map</div>
-          <div class="hint-label" data-view="gallery">Text</div>
+          <div class="hint-label hint-label-slot" data-view="gallery">
+            <span class="slot-viewport" aria-hidden="true">
+              <span class="slot-reel">
+                <span class="slot-word">Text</span>
+                <span class="slot-word">Text</span>
+                <span class="slot-word">Text</span>
+                <span class="slot-word">Text</span>
+                <span class="slot-word">Text</span>
+                <span class="slot-word">Text</span>
+                <span class="slot-word">Text</span>
+                <span class="slot-word">Text</span>
+                <span class="slot-word">Text</span>
+                <span class="slot-word">Text</span>
+                <span class="slot-word">Text</span>
+                <span class="slot-word">Text</span>
+                <span class="slot-word">Text</span>
+                <span class="slot-word">Text</span>
+                <span class="slot-word">Text</span>
+                <span class="slot-word">Text</span>
+              </span>
+            </span>
+          </div>
         </div>
       </div>
     </div>
