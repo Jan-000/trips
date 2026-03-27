@@ -94,7 +94,7 @@ const trips = [
   {
     id: "partwitzer",
     name: "Partwitzer See",
-    route: "around the lake",
+    route: "From Senftenberg to Spremberg",
     map: "../assets/maps/partwitzer.png",
     gallery: [
       {
@@ -257,7 +257,7 @@ function showNoTripState() {
     mapCredit.textContent = "";
   }
   galleryTitle.textContent = "Story";
-  galleryRoute.textContent = "Swipe right for the map";
+
   galleryScroll.innerHTML = "";
 }
 
@@ -303,7 +303,7 @@ function setActiveTrip(tripId) {
   }
 
   mapTitle.textContent = trip.name;
-  mapRoute.textContent = `${trip.route} - swipe left for text`;
+  mapRoute.textContent = `${trip.route}`;
   if (trip.map) {
     mapImage.src = trip.map;
     mapImage.alt = `${trip.name} map`;
@@ -324,8 +324,8 @@ function setActiveTrip(tripId) {
       mapCredit.textContent = "";
     }
   }
-  galleryTitle.textContent = `${trip.name} text`;
-  galleryRoute.textContent = "Swipe right for the map";
+  galleryTitle.textContent = `${trip.name}`;
+
   renderGallery(trip.gallery);
 }
 
