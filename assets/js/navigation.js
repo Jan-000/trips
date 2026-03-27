@@ -99,43 +99,43 @@ const trips = [
     gallery: [
       {
         src: "../assets/images/partwitzer/able/20260307_055758.jpg",
-        caption: "Early morning light over the lake.",
+        caption: "Most of those sunsets are unfortunately overslept.",
       },
       {
         src: "../assets/images/partwitzer/able/20260307_083159.jpg",
-        caption: "Mirror-still waters at dawn.",
+        caption: "Solidaritat Zuschlag results.",
       },
       {
         src: "../assets/images/partwitzer/able/20260307_090254.jpg",
-        caption: "Quiet paths around Partwitzer See.",
+        caption: "The spectre industrial past.",
       },
       {
         src: "../assets/images/partwitzer/able/20260307_113501.jpg",
-        caption: "Midday reflections on the lake.",
+        caption: "Deutsche Bahn was damn right about the german Karibik.",
       },
       {
         src: "../assets/images/partwitzer/able/20260307_121621.jpg",
-        caption: "Lakeside vegetation and calm water.",
+        caption: "Let the forest grow and no one will tell it's all man-made",
       },
       {
         src: "../assets/images/partwitzer/able/20260307_122004.jpg",
-        caption: "Hidden corners of the lake.",
+        caption: "Resting in the shadow of the windmill.",
       },
       {
         src: "../assets/images/partwitzer/able/20260307_123751.jpg",
-        caption: "Sunlight dancing on the surface.",
+        caption: "That lake still in the making.",
       },
       {
         src: "../assets/images/partwitzer/able/20260307_124510.jpg",
-        caption: "The lake's peaceful shores.",
+        caption: "Feels like a red carpet. Neat there.",
       },
       {
         src: "../assets/images/partwitzer/able/20260307_131804.jpg",
-        caption: "Afternoon ride around the water.",
+        caption: "Infrastructure has been ready for years.",
       },
       {
         src: "../assets/images/partwitzer/able/20260307_155711.jpg",
-        caption: "Partwitzer See—a moment of stillness.",
+        caption: "Kottbus: a pleasant wait for the train.",
       },
     ],
   },
