@@ -7,35 +7,35 @@ const trips = [
     gallery: [
       {
         src: "../assets/images/bensersiel/able/20260214_035332.jpg",
-        caption: "Salt air, long rides, and the horizon never stops.",
+        caption: "Unforgettable sound of ICE1 engine launch at 4am, Ostbahnhof. Whizz and cars smoothly light up.",
       },
       {
         src: "../assets/images/bensersiel/able/20260214_085600.jpg",
-        caption: "Coastal paths and endless views.",
+        caption: "The proportions of this house tells immediately where you are. ",
       },
       {
         src: "../assets/images/bensersiel/able/20260214_153805.jpg",
-        caption: "Where the land meets the sea.",
+        caption: "Ankle deep peeling.",
       },
       {
         src: "../assets/images/bensersiel/able/20260214_154044.jpg",
-        caption: "Final stop before the North Sea.",
+        caption: "On zoom in, the Frisian Islands can be seen on the horizon.",
       },
       {
         src: "../assets/images/bensersiel/able/20260214_164107.jpg",
-        caption: "Journey through the northern coast.",
+        caption: "Casual sunset in 1 of 500 Frisian towns/villages. Cosiness - but also depopulation.",
       },
       {
         src: "../assets/images/bensersiel/able/20260214_165647.jpg",
-        caption: "Quiet moments at the edge of the sea.",
+        caption: "Zielbahnhof",
       },
       {
         src: "../assets/images/bensersiel/able/20260214_172639.jpg",
-        caption: "Sunset on the salt marshes.",
+        caption: "First sunny day of 2026, genossen until the last drop.",
       },
       {
         src: "../assets/images/bensersiel/able/20260214_182439.jpg",
-        caption: "Last light before dusk.",
+        caption: "June kind of light in mid-February.",
       },
     ],
   },
