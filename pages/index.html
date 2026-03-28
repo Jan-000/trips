@@ -198,6 +198,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      margin-left: 8px;
+      margin-right: 8px;
       overflow: hidden;
     }
 
@@ -215,11 +217,14 @@
     .map-title {
       font-size: 20px;
       font-weight: 600;
+      padding: 0 .4rem 0 .4rem
     }
 
     .map-route {
       color: var(--muted);
       font-size: 14px;
+      padding: 1rem 8px 0 8px;
+      font-weight: 500;
     }
 
     .map-credit {
@@ -301,7 +306,7 @@
     }
 
     .gallery-caption {
-      padding: 14px 0px 18px 0px;
+      padding: 14px 10px 18px 10px;
       font-size: 14px;
       color: var(--muted);
     }
@@ -600,8 +605,8 @@
       </section>
       <section class="panel map" data-panel="map">
         <div class="map-meta">
-          <div class="map-title" id="mapTitle">Pick a trip</div>
-          <div class="map-route" id="mapRoute">Swipe left when ready</div>
+          <div class="map-title" id="mapTitle"></div>
+          <div class="map-route" id="mapRoute"></div>
         </div>
         <div class="map-frame" id="mapFrame">
           <img id="mapImage" src="" alt="" hidden />
@@ -610,8 +615,8 @@
       </section>
       <section class="panel gallery" data-panel="gallery">
         <div class="map-meta">
-          <div class="map-title" id="galleryTitle">Story</div>
-          <div class="map-route" id="galleryRoute">Pick a trip to read the story</div>
+          <div class="map-title" id="galleryTitle"></div>
+          <div class="map-route" id="galleryRoute"></div>
         </div>
         <div class="gallery-scroll" id="galleryScroll"></div>
       </section>

@@ -44,7 +44,7 @@ const trips = [
     id: "boltenhagen",
     name: "Ostsee",
     route: "from Schwerin to Boltenhagen",
-    story_intro: "80km haul from Schwerin northwards. Goal was to see the bay of Boltenhagen which is one of few german baltic surf spots. You can't make long stops when light fog and 3C persists. Nevertheless, sense of reward is strong. Seaside resorts never 100% asleep even in the lowest of the season. That is my hack - having a precious endgoal (here: seeing the Baltic). This is the fuel on random 30th kilometer when you start to question things.",
+    story_intro: "80km haul from Schwerin to Boltenhagen - one of few german baltic surf spots. You can't make long stops when light fog and 3C persists. Nevertheless, sense of reward is strong and the town was not even 100% asleep. That is my hack - having a precious endgoal (here: seeing the Baltic). This is the fuel on random 30th kilometer when you start to question things.",
     map: "../assets/maps/boltenhagen.png",
     gallery: [
       {
@@ -69,7 +69,7 @@ const trips = [
     id: "oderbruch",
     name: "Oderbruchbahn",
     route: "from Wriezen to Letschin",
-    story_intro: "Just find the website of dr Achim Bartoschek, it is the most methodic listing of bike- and skatepaths I've ever seen. That route is extremely well reachable from Berlin and had a great pleasure to do it in few stages. Sheer length of uninterrupted ride is a powerful detachment from the everyday.",
+    story_intro: "Just find the website of dr Achim Bartoschek, it is the most methodic listing of bike- and skatepaths I've ever seen. That former-railway route is extremely well reachable from Berlin and had a great pleasure to do it in few stages. Sheer length of uninterrupted ride is a powerful detachment from the everyday.",
     map: "../assets/maps/oderbruch.png",
     mapCredit: {
       label: "Map credit: bahnstrecken.de",
@@ -90,7 +90,7 @@ const trips = [
       },
       {
         src: "../assets/images/oderbruch/able/20250209_114750.jpg",
-        caption: "Memorable. Muhlensee.",
+        caption: "Muhlensee. Memorable.",
       },
     ],
   },
