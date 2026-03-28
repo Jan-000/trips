@@ -252,18 +252,14 @@ function clearHintBarHideTimer() {
 }
 
 function showNoTripState() {
-  mapTitle.textContent = "Pick a trip";
-  mapRoute.textContent = "Swipe left when ready";
   mapImage.hidden = true;
   mapImage.src = "";
   mapImage.alt = "";
   if (mapCredit) {
     mapCredit.textContent = "";
   }
-  galleryTitle.textContent = "Story";
 
   galleryScroll.innerHTML = "";
-  galleryRoute.textContent = "Pick a trip to read the story";
 }
 
 function setAboutPanelOpen(isOpen, hintFadeContext = null) {
