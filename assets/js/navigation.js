@@ -3,6 +3,7 @@ const trips = [
     id: "bensersiel",
     name: "Nordsee",
     route: "from Bad Zwischenhahn to Bensersiel",
+    story_intro: "Least planned trip due to abundance of bikepaths in Niedersachsen. Goal was to touch the Wattenmeer. Had to get a small lift by bus, to spend more time by the coast, that along the roads.",
     map: "../assets/maps/bensersiel.png",
     gallery: [
       {
@@ -43,6 +44,7 @@ const trips = [
     id: "boltenhagen",
     name: "Ostsee",
     route: "from Schwerin to Boltenhagen",
+    story_intro: "80km haul from Schwerin northwards. Goal was to see the bay of Boltenhagen which is one of few german baltic surf spots. You can't make long stops when light fog and 3C persists. Nevertheless, sense of reward is strong. Seaside resorts never 100% asleep even in the lowest of the season. That is my hack - having a precious endgoal (here: seeing the Baltic). This is the fuel on random 30th kilometer when you start to question things.",
     map: "../assets/maps/boltenhagen.png",
     gallery: [
       {
@@ -67,6 +69,7 @@ const trips = [
     id: "oderbruch",
     name: "Oderbruchbahn",
     route: "from Wriezen to Letschin",
+    story_intro: "Just find the website of dr Achim Bartoschek, it is the most methodic listing of bike- and skatepaths I've ever seen. That route is extremely well reachable from Berlin and had a great pleasure to do it in few stages. Sheer length of uninterrupted ride is a powerful detachment from the everyday.",
     map: "../assets/maps/oderbruch.png",
     mapCredit: {
       label: "Map credit: bahnstrecken.de",
@@ -95,6 +98,7 @@ const trips = [
     id: "partwitzer",
     name: "Partwitzer See",
     route: "From Senftenberg to Spremberg",
+    story_intro: "Was always intrigued by Neu-Seen-Land, how can man fabricate a legit sailing chain of reservoirs. Excellent quality of bikepaths, as everything here is relatively new. Coming back in summer to see if it ever gets crowded. On of on-route goals was Partwitzer See, indeed a local jewel, and partly available for swimming. 4C water is a solid refreshment, so is sunny beach mid-March. Despite those advantages, demography of the region steadily disappoints.",
     map: "../assets/maps/partwitzer.png",
     gallery: [
       {
@@ -107,7 +111,7 @@ const trips = [
       },
       {
         src: "../assets/images/partwitzer/able/20260307_090254.jpg",
-        caption: "The spectre industrial past.",
+        caption: "The spectre of industrial past.",
       },
       {
         src: "../assets/images/partwitzer/able/20260307_113501.jpg",
@@ -259,6 +263,7 @@ function showNoTripState() {
   galleryTitle.textContent = "Story";
 
   galleryScroll.innerHTML = "";
+  galleryRoute.textContent = "Pick a trip to read the story";
 }
 
 function setAboutPanelOpen(isOpen, hintFadeContext = null) {
@@ -325,6 +330,7 @@ function setActiveTrip(tripId) {
     }
   }
   galleryTitle.textContent = `${trip.name}`;
+  galleryRoute.textContent = trip.story_intro || "";
 
   renderGallery(trip.gallery);
 }
