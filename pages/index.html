@@ -228,6 +228,34 @@
       font-weight: 500;
     }
 
+    .story-description {
+      color: var(--muted);
+      font-size: 14px;
+      padding: 1rem 8px 0 8px;
+      font-weight: 500;
+    }
+
+    .story-description-more {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      text-decoration: underline;
+      text-underline-offset: 0.12em;
+      cursor: pointer;
+      padding: 0;
+      margin-left: 0.35em;
+      vertical-align: baseline;
+    }
+
+    .story-description-more:hover,
+    .story-description-more:focus-visible {
+      color: #245f4f;
+    }
+
     .map-credit {
       min-height: 1.2em;
       margin-top: 8px;
@@ -633,7 +661,7 @@
       <section class="panel gallery" data-panel="gallery">
         <div class="map-meta">
           <div class="map-title" id="galleryTitle"></div>
-          <div class="map-route" id="galleryRoute"></div>
+          <div class="story-description" id="storyDescription"></div>
         </div>
         <div class="gallery-scroll" id="galleryScroll"></div>
       </section>

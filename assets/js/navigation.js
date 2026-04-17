@@ -175,6 +175,7 @@ const state = {
 const STORY_LABEL_SPIN_DELAY_MS = 500;
 const STORY_LABEL_SPIN_DURATION_MS = 1500;
 const STORY_ARROW_DELAY_AFTER_SPIN_MS = 1000;
+const STORY_PREVIEW_MAX_LENGTH = 200;
 
 const rail = document.getElementById("rail");
 const tripList = document.getElementById("tripList");
@@ -184,7 +185,7 @@ const mapImage = document.getElementById("mapImage");
 const mapCredit = document.getElementById("mapCredit");
 const galleryScroll = document.getElementById("galleryScroll");
 const galleryTitle = document.getElementById("galleryTitle");
-const galleryRoute = document.getElementById("galleryRoute");
+const storyDescription = document.getElementById("storyDescription");
 const hintBar = document.getElementById("hintBar");
 const hintTrack = document.getElementById("hintTrack");
 const hintLabels = Array.from(document.querySelectorAll(".hint-label"));
@@ -295,6 +296,50 @@ function renderTrips() {
   });
 }
 
+function getStoryPreview(text, maxLength) {
+  if (text.length <= maxLength) {
+    return text;
+  }
+  const wordBoundary = text.lastIndexOf(" ", maxLength);
+  if (wordBoundary > Math.floor(maxLength * 0.6)) {
+    return text.slice(0, wordBoundary).trimEnd();
+  }
+  return text.slice(0, maxLength).trimEnd();
+}
+
+function setStoryDescription(text) {
+  if (!storyDescription) {
+    return;
+  }
+
+  const fullText = (text || "").trim();
+  storyDescription.innerHTML = "";
+
+  if (!fullText) {
+    return;
+  }
+
+  if (fullText.length <= STORY_PREVIEW_MAX_LENGTH) {
+    storyDescription.textContent = fullText;
+    return;
+  }
+
+  const previewText = getStoryPreview(fullText, STORY_PREVIEW_MAX_LENGTH);
+  const previewSpan = document.createElement("span");
+  previewSpan.textContent = `${previewText}...`;
+
+  const readMoreButton = document.createElement("button");
+  readMoreButton.type = "button";
+  readMoreButton.className = "story-description-more";
+  readMoreButton.textContent = "read more";
+  readMoreButton.setAttribute("aria-label", "Show full story description");
+  readMoreButton.addEventListener("click", () => {
+    storyDescription.textContent = fullText;
+  });
+
+  storyDescription.append(previewSpan, readMoreButton);
+}
+
 function setActiveTrip(tripId) {
   const trip = trips.find((item) => item.id === tripId) || null;
   state.activeTrip = trip;
@@ -330,7 +375,7 @@ function setActiveTrip(tripId) {
     }
   }
   galleryTitle.textContent = `${trip.name}`;
-  galleryRoute.textContent = trip.story_intro || "";
+  setStoryDescription(trip.story_intro || "");
 
   renderGallery(trip.gallery);
 }
