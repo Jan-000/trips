@@ -193,6 +193,10 @@ const fullscreenViewer = document.getElementById("fullscreenViewer");
 const fullscreenImage = document.getElementById("fullscreenImage");
 const textHintLabel = hintLabels.find((label) => label.dataset.view === "gallery");
 
+function getViewportWidth() {
+  return rail?.parentElement?.clientWidth || window.innerWidth;
+}
+
 function openFullscreenImage(src, alt = "") {
   if (!fullscreenViewer || !fullscreenImage || !src) return;
   fullscreenImage.src = src;
@@ -392,7 +396,7 @@ function setView(index, animate) {
   rail.style.transition = animate
     ? "transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)"
     : "none";
-  rail.style.transform = `translateX(${-clamped * 100}vw)`;
+  rail.style.transform = `translateX(${-clamped * getViewportWidth()}px)`;
   updateHint(animate);
 }
 
@@ -638,7 +642,7 @@ function onTouchStart(event) {
   state.touchActive = true;
   state.touchStartX = touch.clientX;
   state.touchStartY = touch.clientY;
-  state.touchStartOffset = -state.viewIndex * window.innerWidth;
+  state.touchStartOffset = -state.viewIndex * getViewportWidth();
   state.touchLock = null;
   rail.style.transition = "none";
 }
@@ -664,13 +668,14 @@ function onTouchMove(event) {
   }
 
   event.preventDefault();
+  const viewportWidth = getViewportWidth();
   const maxOffset = 0;
-  const minOffset = -(viewOrder.length - 1) * window.innerWidth;
+  const minOffset = -(viewOrder.length - 1) * viewportWidth;
   let nextOffset = state.touchStartOffset + deltaX;
   nextOffset = Math.max(minOffset - 120, Math.min(maxOffset + 120, nextOffset));
   rail.style.transform = `translateX(${nextOffset}px)`;
 
-  const progress = Math.max(0, Math.min(viewOrder.length - 1, -nextOffset / window.innerWidth));
+  const progress = Math.max(0, Math.min(viewOrder.length - 1, -nextOffset / viewportWidth));
   const leftIndex = Math.floor(progress);
   const rightIndex = Math.ceil(progress);
   const leftOffset = getHintOffsetForView(viewOrder[leftIndex]);
@@ -700,7 +705,7 @@ function onTouchEnd(event) {
   }
 
   const deltaX = touch.clientX - state.touchStartX;
-  const threshold = window.innerWidth * 0.18;
+  const threshold = getViewportWidth() * 0.18;
   let nextIndex = state.viewIndex;
 
   if (Math.abs(deltaX) > threshold) {
