@@ -858,7 +858,7 @@ function onHintClick(event) {
     return;
   }
   if (view === "trips") {
-    setAboutPanelOpen(false);
+    setAboutPanelOpen(false, "about");
     setView(0, true);
     return;
   }
