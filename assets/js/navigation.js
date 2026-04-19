@@ -275,9 +275,22 @@ function setAboutPanelOpen(isOpen, hintFadeContext = null) {
     clearHintFadeTimer();
     clearHintBarHideTimer();
     state.hintBarCanHide = true;
+  } else if (hintFadeContext === "about" && state.viewIndex === 0) {
+    // Keep the hint bar visible for one tick so the active label can switch
+    // from "about" to "all trips" before the fade-out begins.
+    clearHintBarHideTimer();
+    state.hintBarCanHide = false;
   }
   aboutPanel?.classList.toggle("is-visible", isOpen);
   updateHint(true);
+
+  if (!isOpen && hintFadeContext === "about" && state.viewIndex === 0) {
+    state.hintBarHideTimer = window.setTimeout(() => {
+      state.hintBarCanHide = true;
+      state.hintBarHideTimer = null;
+      updateHint();
+    }, 540);
+  }
 }
 
 function renderTrips() {
