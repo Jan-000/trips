@@ -394,7 +394,7 @@ function renderGallery(items) {
     galleryScroll.appendChild(empty);
     return;
   }
-  items.forEach((item) => {
+  items.forEach((item, index) => {
     const figure = document.createElement("figure");
     figure.className = "gallery-item";
     figure.innerHTML = `
@@ -403,6 +403,9 @@ function renderGallery(items) {
         `;
     const image = figure.querySelector("img");
     if (image) {
+      if (index < 2) {
+        image.classList.add("is-prereveal");
+      }
       image.dataset.index = String(galleryScroll.children.length);
     }
     galleryScroll.appendChild(figure);
@@ -454,8 +457,10 @@ function setView(index, animate) {
     const imgs = galleryScroll.querySelectorAll("img");
     [imgs[0], imgs[1]].forEach(img => {
       if (!img) return;
+      img.classList.add("is-prereveal");
       img.classList.remove("is-revealing");
       void img.offsetWidth;
+      img.classList.remove("is-prereveal");
       img.classList.add("is-revealing");
     });
   }
