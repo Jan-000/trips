@@ -380,6 +380,7 @@ function setActiveTrip(tripId) {
   }
   galleryTitle.textContent = `${trip.name}`;
   setStoryDescription(trip.story_intro || "");
+  state.galleryRevealDone = false;
 
   renderGallery(trip.gallery);
 }
@@ -447,6 +448,17 @@ function setView(index, animate) {
     : "none";
   rail.style.transform = `translateX(${-clamped * getViewportWidth()}px)`;
   updateHint(animate);
+
+  if (clamped === 2 && !state.galleryRevealDone) {
+    state.galleryRevealDone = true;
+    const imgs = galleryScroll.querySelectorAll("img");
+    [imgs[0], imgs[1]].forEach(img => {
+      if (!img) return;
+      img.classList.remove("is-revealing");
+      void img.offsetWidth;
+      img.classList.add("is-revealing");
+    });
+  }
 }
 
 function updateHintTrackInsets() {
