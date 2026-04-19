@@ -417,6 +417,10 @@
       --hint-right-crop: clamp(0px, 11vw, 44px);
     }
 
+    .hint-bar.is-about-narrow {
+      --hint-base-width: min(calc(var(--hint-slot) * 2 + var(--hint-padding-x) * 2), calc(100vw - 28px));
+    }
+
     .hint-window {
       position: relative;
       overflow: hidden;

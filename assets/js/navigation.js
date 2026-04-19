@@ -586,8 +586,21 @@ function updateHint(animate = true) {
   const isHidingOnTrips =
     state.viewIndex === 0 && !state.aboutOpen && state.hintBarCanHide;
   const wasHidden = hintBar?.classList.contains("is-hidden");
+
+  // When revealing from hidden, disable all transitions except opacity+translate
+  // so width/transform changes settle instantly and only the slide-up animates.
+  if (wasHidden && !isHidingOnTrips && hintBar) {
+    hintBar.style.transition = "opacity 0.35s ease, translate 0.35s ease";
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        hintBar.style.transition = "";
+      });
+    });
+  }
+
   hintBar?.classList.toggle("is-hidden", isHidingOnTrips);
   hintBar?.classList.toggle("is-story-cropped", currentView === "gallery");
+  hintBar?.classList.toggle("is-about-narrow", state.aboutOpen || state.hintFadeContext === "about");
   hintBar?.classList.toggle(
     "is-trips-left-cropped",
     currentView === "trips" && state.hintFadeContext === "trip" && state.hintBarLeftCropActive,
