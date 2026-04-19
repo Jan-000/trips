@@ -3,7 +3,7 @@ const trips = [
     id: "bensersiel",
     name: "Nordsee",
     route: "from Bad Zwischenhahn to Bensersiel",
-    story_intro: "Least planned trip due to abundance of bikepaths in Niedersachsen. Goal was to touch the Wattenmeer. Had to get a small lift by bus, to spend more time by the coast, that along the roads.",
+    story_intro: "Least planned trip due to abundance of bikepaths in Niedersachsen. Goal was to touch the Wattenmeer. In the middle of the trip, I had to get a small lift by bus, to spend more time by the coast, than along the roads.",
     map: "../assets/maps/bensersiel.png",
     gallery: [
       {
@@ -44,7 +44,7 @@ const trips = [
     id: "boltenhagen",
     name: "Ostsee",
     route: "from Schwerin to Boltenhagen",
-    story_intro: "80km haul from Schwerin to Boltenhagen - one of few german baltic surf spots. You can't make long stops when light fog and 3C persists. Nevertheless, sense of reward is strong and the town was not even 100% asleep. That is my hack - having a precious endgoal (here: seeing the Baltic). This is the fuel on random 30th kilometer when you start to question things.",
+    story_intro: "80km haul from Schwerin to Boltenhagen - one of few german baltic surf spots. You can't make long stops when light fog and 3C persists. Nevertheless, sense of reward is strong - and the town was surprisingly not asleep! That is my hack - having a precious endgoal (here: seeing the Baltic). This is the fuel on random 30th kilometer when you start to question things.",
     map: "../assets/maps/boltenhagen.png",
     gallery: [
       {
@@ -69,7 +69,7 @@ const trips = [
     id: "oderbruch",
     name: "Oderbruchbahn",
     route: "from Wriezen to Letschin",
-    story_intro: "Just find the website of dr Achim Bartoschek, it is the most methodic listing of bike- and skatepaths I've ever seen. That former-railway route is extremely well reachable from Berlin and had a great pleasure to do it in few stages. Sheer length of uninterrupted ride is a powerful detachment from the everyday.",
+    story_intro: "Just find the website of dr Achim Bartoschek, it is the most methodic listing of bike- and skatepaths I've ever seen. That former-railway route is extremely well reachable from Berlin and it's great to do it in few stages. Sheer length of uninterrupted ride is a powerful detachment from the everyday.",
     map: "../assets/maps/oderbruch.png",
     mapCredit: {
       label: "Map credit: bahnstrecken.de",
@@ -86,7 +86,7 @@ const trips = [
       },
       {
         src: "../assets/images/oderbruch/able/20250209_114548.jpg",
-        caption: "Mild fatigue + isolation in remoteness = feels like fjord",
+        caption: "Mild fatigue + isolation in remoteness. Feels like fjord.",
       },
       {
         src: "../assets/images/oderbruch/able/20250209_114750.jpg",
@@ -98,7 +98,7 @@ const trips = [
     id: "partwitzer",
     name: "Partwitzer See",
     route: "From Senftenberg to Spremberg",
-    story_intro: "Was always intrigued by Neu-Seen-Land, how can man fabricate a legit sailing chain of reservoirs. Excellent quality of bikepaths, as everything here is relatively new. Coming back in summer to see if it ever gets crowded. On of on-route goals was Partwitzer See, indeed a local jewel, and partly available for swimming. 4C water is a solid refreshment, so is sunny beach mid-March. Despite those advantages, demography of the region steadily disappoints.",
+    story_intro: "Was always intrigued by Neu-Seen-Land, how can man fabricate a legit sailing chain of reservoirs. Excellent quality of bikepaths, as everything here is relatively new. Coming back in summer to see if it ever gets crowded. On of along-route goals was Partwitzer See, indeed a local jewel, and partly available for swimming. 4C water is a solid refreshment, so is sunny beach mid-March. Despite those advantages, demography of the region steadily disappoints.",
     map: "../assets/maps/partwitzer.png",
     gallery: [
       {
@@ -127,7 +127,7 @@ const trips = [
       },
       {
         src: "../assets/images/partwitzer/able/20260307_123751.jpg",
-        caption: "That lake still in the making.",
+        caption: "Lake in the making.",
       },
       {
         src: "../assets/images/partwitzer/able/20260307_124510.jpg",
@@ -260,6 +260,7 @@ function showNoTripState() {
   mapImage.hidden = true;
   mapImage.src = "";
   mapImage.alt = "";
+  mapImage.classList.remove("is-revealing");
   if (mapCredit) {
     mapCredit.textContent = "";
   }
@@ -358,6 +359,9 @@ function setActiveTrip(tripId) {
     mapImage.src = trip.map;
     mapImage.alt = `${trip.name} map`;
     mapImage.hidden = false;
+    mapImage.classList.remove("is-revealing");
+    void mapImage.offsetWidth; // force reflow to restart animation
+    mapImage.classList.add("is-revealing");
     if (mapCredit) {
       if (trip.mapCredit?.href) {
         mapCredit.innerHTML = `<a href="${trip.mapCredit.href}" target="_blank" rel="noreferrer">${trip.mapCredit.label}</a>`;
@@ -369,7 +373,7 @@ function setActiveTrip(tripId) {
     mapImage.src = "";
     mapImage.alt = "";
     mapImage.hidden = true;
-    mapRoute.textContent = `${trip.route} - map coming soon`;
+    mapImage.classList.remove("is-revealing");
     if (mapCredit) {
       mapCredit.textContent = "";
     }

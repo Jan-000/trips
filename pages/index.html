@@ -7,10 +7,10 @@
   <title>On a Whim</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=inter:wght@400;500;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --ink: #111;
+      --ink: #383838;
       --muted: #6b6b6b;
       --paper: #f6f2ea;
       --glow: #f9d64a;
@@ -21,7 +21,7 @@
       --hint-height: 56px;
       --hint-image-gap: 12px;
       --hint-reserved-space: calc(var(--hint-bottom-offset) + var(--hint-height) + var(--hint-image-gap) + env(safe-area-inset-bottom, 0px));
-      --shadow: 0 20px 60px rgba(16, 16, 16, 0.18);
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
     }
 
     * {
@@ -31,14 +31,14 @@
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
+      font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
       color: var(--ink);
       background:
         radial-gradient(circle at 20% 20%,
-          rgba(249, 214, 74, 0.4),
+          rgba(245, 245, 243, 0.4),
           transparent 55%),
         radial-gradient(circle at 80% 10%,
-          rgba(122, 163, 122, 0.35),
+          rgba(245, 247, 245, 0.35),
           transparent 50%),
         var(--paper);
       overflow: hidden;
@@ -68,7 +68,7 @@
       padding: 24px 2rem 5rem;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: .5rem;
       overflow-y: auto;
     }
 
@@ -80,20 +80,39 @@
       display: flex;
       flex-direction: column;
       gap: 4px;
+      margin-bottom: 3rem;
     }
 
     .title {
-      font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
+      font-family: "inter", "Helvetica Neue", Arial, sans-serif;
       font-size: 32px;
       font-weight: 700;
-      letter-spacing: 0.02em;
+      position: relative;
+      display: inline-block;
+      padding-bottom: 16px;
+
+    }
+
+    .title::after {
+      content: "";
+      position: absolute;
+      left: -3px;
+      bottom: -.5rem;
+      width: calc(100% - 6rem);
+      height: 3rem;
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 28' preserveAspectRatio='none'%3E%3Cpath d='M2 18 C 16 27, 31 8, 48 19 C 63 30, 78 9, 95 20 C 111 30, 128 8, 146 21 C 163 32, 180 9, 197 19 C 207 24, 214 22, 218 20' stroke='%23383838' stroke-width='3.1' stroke-linecap='round' fill='none'/%3E%3C/svg%3E");
+      pointer-events: none;
+      transform: rotate(-0.7deg);
+      opacity: .4
     }
 
     .subtitle {
       font-size: 14px;
       color: var(--muted);
       text-transform: uppercase;
-      letter-spacing: 0.2em;
+
     }
 
     .trip-list {
@@ -101,13 +120,13 @@
       padding: 0;
       margin: 0;
       display: grid;
-      gap: 14px;
+      gap: .5rem;
     }
 
     .trip-card {
-      border-radius: 18px;
+      border-radius: .5rem;
       padding: 18px 16px;
-      background: rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.5);
       box-shadow: var(--shadow);
       display: flex;
       flex-direction: column;
@@ -124,7 +143,7 @@
 
     .trip-name {
       font-size: 20px;
-      font-weight: 600;
+      font-weight: 500;
     }
 
     .trip-route {
@@ -178,17 +197,17 @@
     }
 
     .about-overlay .map-title {
-      font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
+      font-family: "inter", "Helvetica Neue", Arial, sans-serif;
       font-size: 32px;
       font-weight: 700;
-      letter-spacing: 0.02em;
+
     }
 
     .about-overlay .map-route {
       font-size: 14px;
       color: var(--muted);
       text-transform: uppercase;
-      letter-spacing: 0.2em;
+
     }
 
     .map-frame {
@@ -207,6 +226,15 @@
     .map-frame img {
       height: 100%;
       object-fit: contain;
+    }
+
+    @keyframes map-desaturate-in {
+      0%   { filter: grayscale(1); }
+      100% { filter: grayscale(0); }
+    }
+
+    #mapImage.is-revealing {
+      animation: map-desaturate-in 3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
 
     .map-meta {
@@ -242,7 +270,7 @@
       font: inherit;
       font-size: 14px;
       font-weight: 400;
-      letter-spacing: 0.02em;
+
       text-decoration: underline;
       text-underline-offset: 0.12em;
       cursor: pointer;
@@ -392,7 +420,7 @@
       max-width: var(--hint-slot);
       padding: 0;
       font-size: 13px;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
       text-align: center;
       color: var(--muted);
@@ -501,7 +529,7 @@
 
       .hint-label {
         font-size: 12px;
-        letter-spacing: 0.08em;
+
       }
     }
 
