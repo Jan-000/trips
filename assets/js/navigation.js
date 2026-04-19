@@ -155,11 +155,12 @@ const state = {
   hintFadeTimer: null,
   hintBarCanHide: true,
   hintBarHideTimer: null,
+  hintBarLeftCropTimer: null,
+  hintBarLeftCropActive: false,
   swipeBarNudgeDelayTimer: null,
   swipeBarNudgeTimer: null,
   textLabelSpinDelayTimer: null,
   textLabelSpinTimer: null,
-  storyArrowDelayTimer: null,
   lastHintView: null,
   touchActive: false,
   touchStartX: 0,
@@ -174,8 +175,9 @@ const state = {
 
 const STORY_LABEL_SPIN_DELAY_MS = 500;
 const STORY_LABEL_SPIN_DURATION_MS = 1500;
-const STORY_ARROW_DELAY_AFTER_SPIN_MS = 1000;
 const STORY_PREVIEW_MAX_LENGTH = 200;
+const TRIPS_HINT_LEFT_CROP_DELAY_MS = 170;
+const TRIPS_HINT_HIDE_DELAY_MS = 540;
 
 const rail = document.getElementById("rail");
 const tripList = document.getElementById("tripList");
@@ -256,6 +258,14 @@ function clearHintBarHideTimer() {
   state.hintBarHideTimer = null;
 }
 
+function clearHintBarLeftCropTimer() {
+  if (!state.hintBarLeftCropTimer) {
+    return;
+  }
+  clearTimeout(state.hintBarLeftCropTimer);
+  state.hintBarLeftCropTimer = null;
+}
+
 function showNoTripState() {
   mapImage.hidden = true;
   mapImage.src = "";
@@ -274,11 +284,15 @@ function setAboutPanelOpen(isOpen, hintFadeContext = null) {
   if (isOpen) {
     clearHintFadeTimer();
     clearHintBarHideTimer();
+    clearHintBarLeftCropTimer();
+    state.hintBarLeftCropActive = false;
     state.hintBarCanHide = true;
   } else if (hintFadeContext === "about" && state.viewIndex === 0) {
     // Keep the hint bar visible for one tick so the active label can switch
     // from "about" to "all trips" before the fade-out begins.
     clearHintBarHideTimer();
+    clearHintBarLeftCropTimer();
+    state.hintBarLeftCropActive = false;
     state.hintBarCanHide = false;
   }
   aboutPanel?.classList.toggle("is-visible", isOpen);
@@ -448,14 +462,26 @@ function setView(index, animate) {
   if (clamped === 0 && previousIndex !== 0 && !state.aboutOpen) {
     state.hintFadeContext = "trip";
     state.hintBarCanHide = false;
+    state.hintBarLeftCropActive = false;
+    clearHintBarLeftCropTimer();
     clearHintBarHideTimer();
+    state.hintBarLeftCropTimer = window.setTimeout(() => {
+      state.hintBarLeftCropTimer = null;
+      if (state.viewIndex !== 0 || state.aboutOpen) {
+        return;
+      }
+      state.hintBarLeftCropActive = true;
+      updateHint();
+    }, TRIPS_HINT_LEFT_CROP_DELAY_MS);
     state.hintBarHideTimer = window.setTimeout(() => {
       state.hintBarCanHide = true;
       state.hintBarHideTimer = null;
       updateHint();
-    }, 540);
+    }, TRIPS_HINT_HIDE_DELAY_MS);
   } else if (clamped !== 0) {
     state.hintBarCanHide = true;
+    state.hintBarLeftCropActive = false;
+    clearHintBarLeftCropTimer();
     clearHintBarHideTimer();
   }
 
@@ -559,7 +585,13 @@ function updateHint(animate = true) {
 
   const isHidingOnTrips =
     state.viewIndex === 0 && !state.aboutOpen && state.hintBarCanHide;
+  const wasHidden = hintBar?.classList.contains("is-hidden");
   hintBar?.classList.toggle("is-hidden", isHidingOnTrips);
+  hintBar?.classList.toggle("is-story-cropped", currentView === "gallery");
+  hintBar?.classList.toggle(
+    "is-trips-left-cropped",
+    currentView === "trips" && state.hintFadeContext === "trip" && state.hintBarLeftCropActive,
+  );
 
   const showAboutOnly = state.aboutOpen;
   const showAboutFadeSet =
@@ -612,6 +644,7 @@ function updateHint(animate = true) {
   if (isHidingOnTrips && state.hintFadeContext && !state.hintFadeTimer) {
     state.hintFadeTimer = window.setTimeout(() => {
       state.hintFadeContext = null;
+      state.hintBarLeftCropActive = false;
       state.hintFadeTimer = null;
       updateHint();
     }, 360);
@@ -619,10 +652,8 @@ function updateHint(animate = true) {
 
   if (currentView === "gallery" && previousHintView !== "gallery") {
     spinTextHintLabel();
-    triggerStoryArrowNudge();
   } else if (currentView !== "gallery" && textHintLabel) {
     clearTextLabelSpinTimer();
-    clearStoryArrowTimers();
     textHintLabel.classList.remove("is-spinning");
   }
   state.lastHintView = currentView;
@@ -631,7 +662,8 @@ function updateHint(animate = true) {
     return;
   }
 
-  setHintTrackOffset(getHintOffsetForView(activeLabel.dataset.view), animate);
+  const skipTrackAnim = wasHidden && !isHidingOnTrips;
+  setHintTrackOffset(getHintOffsetForView(activeLabel.dataset.view), animate && !skipTrackAnim);
 }
 
 function clearSwipeBarNudgeTimers() {
@@ -668,35 +700,6 @@ function clearTextLabelSpinTimer() {
   if (!state.textLabelSpinTimer) return;
   clearTimeout(state.textLabelSpinTimer);
   state.textLabelSpinTimer = null;
-}
-
-function clearStoryArrowTimers() {
-  if (state.storyArrowDelayTimer) {
-    clearTimeout(state.storyArrowDelayTimer);
-    state.storyArrowDelayTimer = null;
-  }
-  textHintLabel?.classList.remove("is-arrow-nudging");
-}
-
-function triggerStoryArrowNudge() {
-  if (!textHintLabel) return;
-  clearStoryArrowTimers();
-  textHintLabel.classList.remove("is-arrow-nudging");
-  const delayMs =
-    STORY_LABEL_SPIN_DELAY_MS +
-    STORY_LABEL_SPIN_DURATION_MS +
-    STORY_ARROW_DELAY_AFTER_SPIN_MS;
-  state.storyArrowDelayTimer = window.setTimeout(() => {
-    state.storyArrowDelayTimer = null;
-    // Force reflow so the animation can replay on repeated entries.
-    textHintLabel.offsetWidth;
-    textHintLabel.classList.add("is-arrow-nudging");
-  }, delayMs);
-}
-
-function onStoryArrowAnimationEnd(event) {
-  if (event.animationName !== "moveFade") return;
-  textHintLabel?.classList.remove("is-arrow-nudging");
 }
 
 function spinTextHintLabel() {
@@ -880,8 +883,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   state.lastNonTripsIndex = initial.viewIndex === 0 ? null : initial.viewIndex;
   setView(initial.viewIndex, false);
-
-  textHintLabel?.addEventListener("animationend", onStoryArrowAnimationEnd);
 
   rail.addEventListener("touchstart", onTouchStart, { passive: true });
   rail.addEventListener("touchmove", onTouchMove, { passive: false });

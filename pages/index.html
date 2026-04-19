@@ -377,12 +377,13 @@
     }
 
     .hint-bar {
+      --hint-base-width: min(calc(var(--hint-slot) * 3 + var(--hint-padding-x) * 2), calc(100vw - 28px));
+      --hint-right-crop: 0px;
       position: fixed;
-      left: 0;
-      right: 0;
+      left: 50%;
       bottom: var(--hint-bottom-offset);
-      margin: 0 auto;
-      width: min(calc(var(--hint-slot) * 3 + var(--hint-padding-x) * 2), calc(100vw - 28px));
+      margin: 0;
+      width: calc(var(--hint-base-width) - var(--hint-right-crop));
       padding: 10px var(--hint-padding-x);
       background: rgba(255, 255, 255, 0.9);
       backdrop-filter: blur(12px);
@@ -391,15 +392,29 @@
       overflow: hidden;
       z-index: 20;
       opacity: 1;
+      transform: translateX(calc(-50% - var(--hint-right-crop) / 2));
+      translate: 0 0;
+      clip-path: inset(0 0 0 0 round 999px);
       transition:
         opacity 0.35s ease,
-        transform 0.35s ease;
+        transform 0.35s ease,
+        translate 0.35s ease,
+        width 0.35s ease,
+        clip-path 0.35s ease;
     }
 
     .hint-bar.is-hidden {
       opacity: 0;
-      transform: translateY(10px);
+      translate: 0 10px;
       pointer-events: none;
+    }
+
+    .hint-bar.is-trips-left-cropped {
+      clip-path: inset(0 0 0 clamp(0px, 11vw, 44px) round 999px);
+    }
+
+    .hint-bar.is-story-cropped {
+      --hint-right-crop: clamp(0px, 11vw, 44px);
     }
 
     .hint-window {
@@ -446,35 +461,6 @@
 
     .hint-label.hint-label-slot {
       overflow: visible;
-    }
-
-    .hint-label-slot .slot-indicator {
-      position: absolute;
-      top: 50%;
-      left: calc(100% + 1rem);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 9px;
-      height: 20px;
-      --arrow-travel: 28px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.26s ease-out;
-      will-change: transform, opacity;
-    }
-
-    .hint-label-slot .slot-indicator::before {
-      content: "\2193";
-      font-size: 12px;
-      line-height: 1;
-      font-weight: 300;
-      color: currentColor;
-    }
-
-    .hint-label-slot.is-arrow-nudging .slot-indicator {
-      opacity: 0;
-      animation: moveFade 1000ms linear 0s 5;
     }
 
     .hint-label-slot .slot-viewport {
@@ -619,32 +605,8 @@
       }
     }
 
-    @keyframes moveFade {
-      0% {
-        transform: translateY(calc(-50% - var(--arrow-travel) / 2));
-        opacity: 0;
-      }
-
-
-      50% {
-        transform: translateY(-50%);
-        opacity: 1;
-      }
-
-
-
-      100% {
-        transform: translateY(calc(-50% + var(--arrow-travel) / 2));
-        opacity: 0;
-      }
-    }
-
     @media (prefers-reduced-motion: reduce) {
       .hint-track.is-swipe-nudging .hint-label {
-        animation: none;
-      }
-
-      .hint-label-slot.is-arrow-nudging .slot-indicator {
         animation: none;
       }
     }
@@ -746,7 +708,7 @@
                 <span class="slot-word">Story</span>
               </span>
             </span>
-            <span class="slot-indicator" aria-hidden="true"></span>
+
           </div>
         </div>
       </div>
